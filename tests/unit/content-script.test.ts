@@ -46,9 +46,12 @@ describe('Content Script Dependencies', () => {
   });
 
   describe('Dependency Integration', () => {
-    test('should verify all mocks are working', () => {
+    it('should verify all mocks are working', () => {
+      // Arrange & Act
       // Test selectors
       const selectors = mockGetAllDeclineSelectors();
+      
+      // Assert - Selectors
       expect(selectors).toHaveLength(1);
       expect(selectors[0].selector).toBe('button:contains("Reject all")');
       
@@ -68,65 +71,79 @@ describe('Content Script Dependencies', () => {
       expect(() => mockAPIHandler.declineAllConsent()).not.toThrow();
     });
 
-    test('should handle DOM operations', () => {
+    it('should handle DOM operations', () => {
+      // Arrange
       const button = document.createElement('button');
       button.textContent = 'Reject all';
       document.body.appendChild(button);
       
       mockDOMUtils.findElementsBySelector.mockReturnValue([button]);
       
+      // Act
       const elements = DOMUtils.findElementsBySelector('button');
+      
+      // Assert
       expect(elements).toContain(button);
       expect(mockDOMUtils.findElementsBySelector).toHaveBeenCalledWith('button');
     });
 
-    test('should handle API operations', () => {
+    it('should handle API operations', () => {
+      // Arrange & Act
       // Test API processing
       expect(APIHandler.isConsentProcessed()).toBe(false);
       
       APIHandler.setConsentProcessed(true);
-      expect(mockAPIHandler.setConsentProcessed).toHaveBeenCalledWith(true);
-      
       APIHandler.handleTCFAPI();
-      expect(mockAPIHandler.handleTCFAPI).toHaveBeenCalled();
-      
       APIHandler.checkForGlobalAPIs();
+      
+      // Assert
+      expect(mockAPIHandler.setConsentProcessed).toHaveBeenCalledWith(true);
+      expect(mockAPIHandler.handleTCFAPI).toHaveBeenCalled();
       expect(mockAPIHandler.checkForGlobalAPIs).toHaveBeenCalled();
     });
 
-    test('should handle selector operations', () => {
+    it('should handle selector operations', () => {
+      // Act
       const selectors = getAllDeclineSelectors();
+      
+      // Assert
       expect(selectors).toHaveLength(1);
       expect(mockGetAllDeclineSelectors).toHaveBeenCalled();
     });
   });
 
   describe('Error Handling Scenarios', () => {
-    test('should handle selector errors', () => {
+    it('should handle selector errors', () => {
+      // Arrange
       mockGetAllDeclineSelectors.mockImplementation(() => {
         throw new Error('Selector Error');
       });
       
+      // Act & Assert
       expect(() => {
         getAllDeclineSelectors();
       }).toThrow('Selector Error');
     });
 
-    test('should handle DOM utility errors', () => {
+    it('should handle DOM utility errors', () => {
+      // Arrange
       mockDOMUtils.findElementsBySelector.mockImplementation(() => {
         throw new Error('DOM Error');
       });
       
+      // Act & Assert
       expect(() => {
         DOMUtils.findElementsBySelector('test');
       }).toThrow('DOM Error');
     });
 
-    test('should handle API handler errors', () => {
+    it('should handle API handler errors', () => {
+      // Arrange
       mockAPIHandler.handleTCFAPI.mockImplementation(() => {
         throw new Error('API Error');
       });
       
+      // Act & Assert
       expect(() => {
         APIHandler.handleTCFAPI();
       }).toThrow('API Error');
@@ -134,30 +151,40 @@ describe('Content Script Dependencies', () => {
   });
 
   describe('Integration Scenarios', () => {
-    test('should work with cookie content detection', () => {
+    it('should work with cookie content detection', () => {
+      // Arrange
       const cookieDiv = document.createElement('div');
       cookieDiv.textContent = 'This website uses cookies';
       document.body.appendChild(cookieDiv);
       
       mockDOMUtils.hasCookieContent.mockReturnValue(true);
       
-      expect(DOMUtils.hasCookieContent([cookieDiv])).toBe(true);
+      // Act
+      const result = DOMUtils.hasCookieContent([cookieDiv]);
+      
+      // Assert
+      expect(result).toBe(true);
       expect(mockDOMUtils.hasCookieContent).toHaveBeenCalledWith([cookieDiv]);
     });
 
-    test('should work with SourcePoint iframe detection', () => {
+    it('should work with SourcePoint iframe detection', () => {
+      // Arrange
       const iframe = document.createElement('iframe');
       iframe.src = 'https://sourcepoint.com/privacy';
       document.body.appendChild(iframe);
       
       mockDOMUtils.findSourcePointIframes.mockReturnValue([iframe as HTMLIFrameElement]);
       
+      // Act
       const iframes = DOMUtils.findSourcePointIframes();
+      
+      // Assert
       expect(iframes).toContain(iframe);
       expect(mockDOMUtils.findSourcePointIframes).toHaveBeenCalled();
     });
 
-    test('should work with consent processing', () => {
+    it('should work with consent processing', () => {
+      // Arrange & Act
       // Test consent not processed scenario
       mockAPIHandler.isConsentProcessed.mockReturnValue(false);
       expect(APIHandler.isConsentProcessed()).toBe(false);
@@ -166,12 +193,14 @@ describe('Content Script Dependencies', () => {
       mockAPIHandler.isConsentProcessed.mockReturnValue(true);
       expect(APIHandler.isConsentProcessed()).toBe(true);
       
+      // Assert
       expect(mockAPIHandler.isConsentProcessed).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('Module Loading Coverage', () => {
-    test('should verify module dependencies are testable', () => {
+    it('should verify module dependencies are testable', () => {
+      // Arrange & Act
       // This test verifies that our mocked modules can be tested
       // without actually loading the content-script which has side effects
       
@@ -184,7 +213,7 @@ describe('Content Script Dependencies', () => {
       expect(() => APIHandler.handleSourcePointAPI()).not.toThrow();
       expect(() => APIHandler.checkForGlobalAPIs()).not.toThrow();
       
-      // Verify the functions were called
+      // Assert - Verify the functions were called
       expect(mockGetAllDeclineSelectors).toHaveBeenCalled();
       expect(mockDOMUtils.findElementsBySelector).toHaveBeenCalled();
       expect(mockDOMUtils.findSourcePointIframes).toHaveBeenCalled();
