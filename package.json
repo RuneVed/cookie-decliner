@@ -1,0 +1,41 @@
+{
+  "name": "cookie-decliner",
+  "version": "1.0.0",
+  "description": "A browser extension that automatically declines cookie consent popups",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "if (Test-Path dist) { Remove-Item -Recurse -Force dist }",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint:check": "eslint src/**/*.ts --max-warnings 0",
+    "prebuild": "npm run lint:check",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test && npm run test:e2e",
+    "test:unit": "jest --testPathPattern=tests/unit"
+  },
+  "keywords": ["browser-extension", "cookie", "privacy", "gdpr", "consent"],
+  "author": "RuneVed",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@playwright/test": "^1.54.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/chrome": "^0.1.1",
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.32.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
+    "web-ext": "^8.9.0"
+  }
+}
