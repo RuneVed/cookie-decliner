@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Cookie Decliner",
+  "version": "1.0.0",
+  "description": "Automatically decline cookie consent popups",
+  "permissions": ["activeTab", "<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content-script.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Cookie Decliner"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
