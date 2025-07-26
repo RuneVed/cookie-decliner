@@ -18,37 +18,45 @@ jest.mock('../../src/types', () => ({
 const mockHasTCFAPI = hasTCFAPI as jest.MockedFunction<typeof hasTCFAPI>;
 const mockHasSourcePointAPI = hasSourcePointAPI as jest.MockedFunction<typeof hasSourcePointAPI>;
 
-describe('API Handler', () => {
+describe('APIHandler', () => {
+  // Spy variables for proper cleanup
+  let consoleSpy: jest.SpyInstance;
+
   beforeEach(() => {
-    // Reset window properties
+    // Clean window properties
     delete (window as any).__tcfapi;
     delete (window as any)._sp_;
     
     // Reset mocks
     mockHasTCFAPI.mockReset();
     mockHasSourcePointAPI.mockReset();
-    
-    // Reset console.log mock
-    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Clean up spies
+    if (consoleSpy) {
+      consoleSpy.mockRestore();
+    }
   });
 
   describe('TCF API Handling', () => {
-    test('should return early when TCF API is not available', () => {
+    it('returns early when TCF API is not available', () => {
+      // Arrange
       mockHasTCFAPI.mockReturnValue(false);
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.handleTCFAPI();
       
+      // Assert
       expect(mockHasTCFAPI).toHaveBeenCalledWith(window);
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: TCF API not available');
-      
-      consoleSpy.mockRestore();
     });
 
-    test('should handle TCF API when available', () => {
+    it('handles TCF API when available', () => {
+      // Arrange
       mockHasTCFAPI.mockReturnValue(true);
       
-      // Mock the TCF API
       const mockTCFAPI = jest.fn((command, version, callback) => {
         if (command === 'getTCData') {
           callback({
@@ -61,48 +69,51 @@ describe('API Handler', () => {
       });
       
       (window as any).__tcfapi = mockTCFAPI;
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.handleTCFAPI();
       
+      // Assert
       expect(mockHasTCFAPI).toHaveBeenCalledWith(window);
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Setting up TCF API handlers');
       expect(mockTCFAPI).toHaveBeenCalled();
-      
-      consoleSpy.mockRestore();
     });
 
-    test('should handle TCF API errors gracefully', () => {
+    it('handles TCF API errors gracefully', () => {
+      // Arrange
       mockHasTCFAPI.mockReturnValue(true);
       
-      // Mock TCF API that throws an error
       (window as any).__tcfapi = jest.fn(() => {
         throw new Error('TCF API Error');
       });
       
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act & Assert
       expect(() => APIHandler.handleTCFAPI()).not.toThrow();
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Error using TCF API:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
   });
 
   describe('SourcePoint API Handling', () => {
-    test('should return early when SourcePoint API is not available', () => {
+    it('returns early when SourcePoint API is not available', () => {
+      // Arrange
       mockHasSourcePointAPI.mockReturnValue(false);
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.handleSourcePointAPI();
       
+      // Assert
       expect(mockHasSourcePointAPI).toHaveBeenCalledWith(window);
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: SourcePoint API not available');
       
       consoleSpy.mockRestore();
     });
 
-    test('should handle SourcePoint API when available', () => {
+    it('should handle SourcePoint API when available', () => {
+      // Arrange
       mockHasSourcePointAPI.mockReturnValue(true);
       
       // Mock SourcePoint API
@@ -114,8 +125,10 @@ describe('API Handler', () => {
       
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.handleSourcePointAPI();
       
+      // Assert
       expect(mockHasSourcePointAPI).toHaveBeenCalledWith(window);
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Setting up SourcePoint API handlers');
       
@@ -124,11 +137,14 @@ describe('API Handler', () => {
   });
 
   describe('Global API Checking', () => {
-    test('should check for global APIs', () => {
+    it('should check for global APIs', () => {
+      // Arrange
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.checkForGlobalAPIs();
       
+      // Assert
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Checking for global cookie consent APIs...');
       
       consoleSpy.mockRestore();
@@ -136,11 +152,14 @@ describe('API Handler', () => {
   });
 
   describe('Consent Decline', () => {
-    test('should handle decline all consent', () => {
+    it('should handle decline all consent', () => {
+      // Arrange
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
+      // Act
       APIHandler.declineAllConsent();
       
+      // Assert
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Attempting to decline all consent...');
       
       consoleSpy.mockRestore();
@@ -148,13 +167,16 @@ describe('API Handler', () => {
   });
 
   describe('Consent State Management', () => {
-    test('should track consent processing state', () => {
+    it('should track consent processing state', () => {
+      // Arrange & Act
       expect(APIHandler.isConsentProcessed()).toBe(false);
       
       APIHandler.setConsentProcessed(true);
       expect(APIHandler.isConsentProcessed()).toBe(true);
       
       APIHandler.setConsentProcessed(false);
+      
+      // Assert
       expect(APIHandler.isConsentProcessed()).toBe(false);
     });
   });
