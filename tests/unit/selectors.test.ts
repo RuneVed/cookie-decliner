@@ -2,15 +2,16 @@ import { LANGUAGE_CONFIGS, getAllDeclineSelectors, FRAMEWORK_SELECTORS } from '.
 
 describe('Selectors Configuration', () => {
   describe('Language Configurations', () => {
-    test('should have selectors for all supported languages', () => {
+    it('has selectors for all supported languages', () => {
       expect(LANGUAGE_CONFIGS).toHaveLength(4); // Norwegian, English, German, French
       
       const languages = LANGUAGE_CONFIGS.map(config => config.code);
       expect(languages).toEqual(['no', 'en', 'de', 'fr']);
     });
 
-    test('should have Norwegian selectors with correct content', () => {
+    it('includes Norwegian selectors with correct content', () => {
       const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      
       expect(norwegian).toBeDefined();
       expect(norwegian!.name).toBe('Norwegian');
       expect(norwegian!.selectors.length).toBeGreaterThan(5);
@@ -20,14 +21,15 @@ describe('Selectors Configuration', () => {
       expect(selectorTexts.some(s => s.includes('Tilpass eller avvis'))).toBe(true);
     });
 
-    test('should have English selectors with correct content', () => {
+    it('includes English selectors with correct content', () => {
       const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
+      
       expect(english).toBeDefined();
       expect(english!.selectors.some(s => s.selector.includes('Reject all'))).toBe(true);
       expect(english!.selectors.some(s => s.selector.includes('Decline all'))).toBe(true);
     });
 
-    test('should have German and French selectors', () => {
+    it('includes German and French selectors', () => {
       const german = LANGUAGE_CONFIGS.find(config => config.code === 'de');
       const french = LANGUAGE_CONFIGS.find(config => config.code === 'fr');
       
@@ -39,7 +41,7 @@ describe('Selectors Configuration', () => {
   });
 
   describe('Framework Selectors', () => {
-    test('should include major consent management platforms', () => {
+    it('includes major consent management platform selectors', () => {
       const frameworks = FRAMEWORK_SELECTORS.map(f => f.selector);
       
       // Should include SourcePoint
@@ -52,8 +54,12 @@ describe('Selectors Configuration', () => {
       expect(frameworks.some(f => f.includes('ot-pc-refuse-all-handler'))).toBe(true);
     });
 
-    test('should have proper descriptions for frameworks', () => {
-      FRAMEWORK_SELECTORS.forEach(selector => {
+    it('should have proper descriptions for frameworks', () => {
+      // Arrange & Act
+      const frameworks = FRAMEWORK_SELECTORS;
+      
+      // Assert
+      frameworks.forEach(selector => {
         expect(selector.description).toBeDefined();
         expect(selector.description.length).toBeGreaterThan(5);
       });
@@ -61,9 +67,11 @@ describe('Selectors Configuration', () => {
   });
 
   describe('Selector Generation', () => {
-    test('should generate combined selectors correctly', () => {
+    it('should generate combined selectors correctly', () => {
+      // Arrange & Act
       const selectors = getAllDeclineSelectors();
       
+      // Assert
       expect(selectors.length).toBeGreaterThan(30);
       expect(Array.isArray(selectors)).toBe(true);
       
@@ -76,11 +84,13 @@ describe('Selectors Configuration', () => {
       expect(selectorStrings.some(s => s.includes('sp_choice_type_11'))).toBe(true);
     });
 
-    test('should not have duplicate selectors', () => {
+    it('should not have duplicate selectors', () => {
+      // Arrange & Act
       const selectors = getAllDeclineSelectors();
       const selectorStrings = selectors.map(s => s.selector);
       const uniqueSelectors = [...new Set(selectorStrings)];
       
+      // Assert
       expect(selectorStrings.length).toBe(uniqueSelectors.length);
     });
   });
