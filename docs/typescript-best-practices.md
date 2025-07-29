@@ -11,7 +11,7 @@ This document outlines the TypeScript best practices implemented in the Cookie D
 - **Safer property access**: Added `noPropertyAccessFromIndexSignature` to enforce bracket notation for index signatures
 
 ### Module Resolution
-- **Modern bundler support**: Changed `moduleResolution` from "node" to "bundler" for better bundler compatibility with esbuild
+- **Modern bundler support**: Changed `moduleResolution` from `"node"` to `"bundler"` for better bundler compatibility with esbuild
 - **JSON imports**: Added `resolveJsonModule` for importing JSON files safely
 - **Verbatim modules**: Added `verbatimModuleSyntax` for explicit import/export handling
 
@@ -22,67 +22,93 @@ This document outlines the TypeScript best practices implemented in the Cookie D
 
 ### Interop Constraints
 - **Module safety**: Added `isolatedModules` for better transpiler compatibility
-- **Import safety**: Added `allowSyntheticDefaultImports` for proper ES module interop
+- **Import consistency**: Added `forceConsistentCasingInFileNames` for cross-platform consistency
 
-## 2. Improved Type Definitions (types.ts)
+## 2. Modern Import/Export Patterns
 
-### Interface Design Best Practices
-- **Readonly properties**: Used `readonly` modifiers where appropriate to prevent accidental mutations
-- **Proper JSDoc documentation**: Added comprehensive documentation for all interfaces
-- **Specific function signatures**: Improved callback types with precise parameter types
+### Type-Only Imports
+```typescript
+// ✅ Good - Type-only imports
+import { type WindowWithAPIs, type TCFData } from './types';
 
-### Type Guards Implementation
-- **Proper type narrowing**: Created type guards that properly narrow types using intersection types
-- **Runtime type checking**: Added proper runtime checks for API availability
+// ❌ Avoid - Mixed imports that could cause bundling issues
+import { WindowWithAPIs, TCFData, hasTCFAPI } from './types';
+```
 
-### Union Types and Optionals
-- **Avoided overloads**: Used union types instead of function overloads where appropriate
-- **Proper optional handling**: Used optional properties correctly without unnecessary overloads
+### Explicit Module Extensions
+```typescript
+// ✅ Good - Clear module references for bundlers
+import { DOMUtils } from './dom-utils';
+
+// ❌ Avoid - .js extensions in TypeScript files
+import { DOMUtils } from './dom-utils.js';
+```
 
 ## 3. Enhanced Type Safety
 
-### Avoid `any` Type
-- **Replaced all `any` types**: Used proper type definitions instead of `any`
-- **Type guards**: Implemented proper type guards for runtime type checking
-- **Unknown over any**: Used `unknown` type for better type safety when the type is truly unknown
+### Interface Definitions
+```typescript
+// ✅ Good - Comprehensive interface with readonly properties
+export interface TCFData {
+  readonly cmpStatus: string;
+  readonly eventStatus: string;
+  readonly gdprApplies?: boolean;
+  readonly tcString: string;
+}
 
-### Proper Property Access
-- **Index signature access**: Used bracket notation `obj['property']` instead of dot notation for index signature properties
-- **Null checking**: Added proper null and undefined checks following strict null checking guidelines
+// ✅ Good - Index signature with proper typing
+export interface PostMessageData {
+  readonly [key: string]: unknown;
+  readonly type?: string;
+}
+```
 
-### Function Types and Callbacks
-- **Void return types**: Used `void` for callback return types that are ignored
-- **Proper parameter types**: Used specific types instead of generic parameters where possible
-- **Non-optional parameters**: Avoided optional parameters in callbacks unless truly necessary
+### Type Guards
+```typescript
+// ✅ Good - Proper type guard implementation
+export function hasTCFAPI(win: Window): win is WindowWithAPIs & { __tcfapi: NonNullable<WindowWithAPIs['__tcfapi']> } {
+  return '__tcfapi' in win && typeof (win as WindowWithAPIs).__tcfapi === 'function';
+}
+```
 
-## 4. Best Practices Applied
+## 4. Error Handling Best Practices
 
-### Do's ✅
-- Used `string`, `number`, `boolean` instead of `String`, `Number`, `Boolean`
-- Used `unknown` instead of `any` for truly unknown types  
-- Used `void` return type for callbacks whose values are ignored
-- Used union types instead of multiple overloads
-- Used proper type guards for runtime type checking
-- Used `readonly` for properties that shouldn't be mutated
-- Used bracket notation for index signature property access
+### Comprehensive Try-Catch
+```typescript
+// ✅ Good - Proper error handling with specific error types
+static handleTCFAPI(): void {
+  try {
+    // API implementation
+  } catch (error) {
+    console.log('Cookie Decliner: Error using TCF API:', error);
+  }
+}
+```
 
-### Don'ts ❌
-- Avoided using `any` type throughout the codebase
-- Avoided optional parameters in callbacks unless necessary
-- Avoided separate overloads that differ only in callback arity
-- Avoided more general overloads before specific ones
-- Avoided using boxed primitives (`String`, `Number`, etc.)
+### Safe Property Access
+```typescript
+// ✅ Good - Optional chaining with null checks
+if (sp.config?.events?.onMessageChoiceSelect) {
+  sp.config.events.onMessageChoiceSelect({ choice: 11 });
+}
+```
 
-## 5. Project Structure Improvements
+## 5. ESLint Integration
 
-### File Organization
-- **Separation of concerns**: Types in dedicated `types.ts` file
-- **Modular architecture**: Clean separation between API handlers, DOM utilities, and selectors
-- **Type-only imports**: Used `import type` for type-only imports to reduce bundle size
+### Enhanced TypeScript Rules
+- **`@typescript-eslint/consistent-type-imports`**: Ensures type-only imports
+- **`@typescript-eslint/no-floating-promises`**: Prevents unhandled promises
+- **`@typescript-eslint/prefer-nullish-coalescing`**: Modern null handling
+- **`@typescript-eslint/prefer-optional-chain`**: Safe property access
 
-### Build Configuration
-- **Comprehensive exclusions**: Excluded test files and unnecessary directories from compilation
-- **Proper module targeting**: Set appropriate target and module settings for modern browsers
+### Code Quality Rules
+```typescript
+// ✅ Good - Follows ESLint rules
+const elements = DOMUtils.findElementsBySelector(selector);
+
+// ❌ Avoid - Would trigger ESLint warnings
+var elements = DOMUtils.findElementsBySelector(selector);
+```
 
 ## 6. Current Project Status (July 2025)
 
@@ -100,7 +126,7 @@ The implementation now provides:
 
 ## References
 
-- [TypeScript Official Documentation](https://www.typescriptlang.org/docs/)
-- [TypeScript Do's and Don'ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
-- [TSConfig Reference](https://www.typescriptlang.org/tsconfig/)
-- [TypeScript Best Practices Guide](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [TypeScript ESLint Rules](https://typescript-eslint.io/rules/)
+- [TypeScript Compiler Options](https://www.typescriptlang.org/tsconfig)
+- [Modern TypeScript Best Practices](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
