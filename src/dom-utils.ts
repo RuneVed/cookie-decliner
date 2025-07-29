@@ -1,86 +1,94 @@
 // Utility functions for DOM manipulation and element analysis
-import { EXCLUDE_KEYWORDS, COOKIE_KEYWORDS, getAllCookieKeywords } from './keywords.js';
+import { EXCLUDE_KEYWORDS, COOKIE_KEYWORDS, getAllCookieKeywords } from './keywords';
 
 export class DOMUtils {
   /**
    * Find elements by selector, handling :contains() pseudo-selector manually
    */
   static findElementsBySelector(selector: string): Element[] {
-    if (selector.includes(':contains(')) {
+    // Handle :contains() pseudo-selector
+    const containsMatch = selector.match(/^(.*):(contains\(.+\))(.*)$/);
+    
+    if (containsMatch) {
       return this.findElementsWithText(selector);
     }
-    return Array.from(document.querySelectorAll(selector));
+    
+    try {
+      return Array.from(document.querySelectorAll(selector));
+    } catch (error) {
+      console.debug(`Invalid selector: ${selector}`, error);
+      return [];
+    }
   }
 
   /**
    * Find elements with specific text content
    */
   static findElementsWithText(selector: string): Element[] {
-    const match = selector.match(/(.+):contains\("([^"]+)"\)/);
+    const match = selector.match(/^(.*?):contains\(["'](.+?)["']\)(.*)$/);
     if (!match) return [];
     
-    const [, baseSelector, text] = match;
-    if (!text) return [];
+    const [, baseSelector = '*', textContent] = match;
+    const elements = Array.from(document.querySelectorAll(baseSelector));
     
-    const elements = document.querySelectorAll(baseSelector ?? 'button');
-    
-    return Array.from(elements).filter(el => 
-      el.textContent?.toLowerCase().includes(text.toLowerCase())
-    );
+    return elements.filter(element => {
+      const text = element.textContent?.toLowerCase() || '';
+      return text.includes(textContent.toLowerCase());
+    });
   }
 
   /**
    * Check if element is visible to user
    */
   static isElementVisible(element: Element): boolean {
-    const htmlElement = element as HTMLElement;
-    const rect = htmlElement.getBoundingClientRect();
-    const style = window.getComputedStyle(htmlElement);
+    if (!(element instanceof HTMLElement)) return false;
     
-    return (
-      rect.width > 0 &&
-      rect.height > 0 &&
-      style.display !== 'none' &&
-      style.visibility !== 'hidden' &&
-      style.opacity !== '0'
-    );
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    
+    return style.display !== 'none' && 
+           style.visibility !== 'hidden' && 
+           style.opacity !== '0' &&
+           rect.width > 0 && 
+           rect.height > 0;
   }
 
   /**
    * Validate if button is cookie-related and safe to click
    */
   static isCookieRelatedButton(element: Element): boolean {
-    const htmlElement = element as HTMLElement;
-    const text = htmlElement.textContent?.toLowerCase() ?? '';
-    const className = htmlElement.className.toLowerCase();
-    const id = htmlElement.id.toLowerCase();
-    const dataTestId = htmlElement.getAttribute('data-testid')?.toLowerCase() ?? '';
+    const text = element.textContent?.toLowerCase() || '';
+    const className = element.className?.toLowerCase() || '';
+    const id = element.id?.toLowerCase() || '';
+    const ariaLabel = element.getAttribute('aria-label')?.toLowerCase() || '';
     
-    // Skip buttons that are clearly not cookie-related
-    for (const keyword of EXCLUDE_KEYWORDS) {
-      if (text.includes(keyword) || className.includes(keyword) || 
-          id.includes(keyword) || dataTestId.includes(keyword)) {
-        console.log(`Cookie Decliner: Skipping non-cookie button with keyword "${keyword}"`, element);
-        return false;
+    // Combine all text sources for analysis
+    const allText = `${text} ${className} ${id} ${ariaLabel}`.toLowerCase();
+    
+    // Check for exclusion keywords first
+    const hasExcludeKeyword = EXCLUDE_KEYWORDS.some(keyword => allText.includes(keyword));
+    if (hasExcludeKeyword) {
+      return false;
+    }
+    
+    // Check for cookie-related keywords
+    const cookieKeywords = getAllCookieKeywords();
+    const hasCookieKeyword = cookieKeywords.some(keyword => allText.includes(keyword));
+    
+    if (hasCookieKeyword) {
+      return true;
+    }
+    
+    // Check parent context for cookie-related content
+    if (element instanceof HTMLElement) {
+      const hasParentContext = this.hasParentCookieContext(element);
+      if (hasParentContext) {
+        return true;
       }
     }
     
-    // Check if it's likely a cookie-related button
-    const hasCookieKeyword = COOKIE_KEYWORDS.some(keyword => 
-      text.includes(keyword) || className.includes(keyword) || 
-      id.includes(keyword) || dataTestId.includes(keyword)
-    );
-    
-    // Check if parent elements suggest it's a cookie banner
-    const cookieContext = this.hasParentCookieContext(htmlElement);
-    
-    const isLikelyCookieButton = hasCookieKeyword || cookieContext;
-    
-    if (!isLikelyCookieButton) {
-      console.log('Cookie Decliner: Skipping button - no cookie context detected', element);
-    }
-    
-    return isLikelyCookieButton;
+    console.log('Cookie Decliner: Skipping button - no cookie context detected', element);
+    return false;
   }
 
   /**
@@ -91,11 +99,18 @@ export class DOMUtils {
     let levels = 0;
     
     while (parent && levels < 5) {
-      const parentClass = parent.className.toLowerCase();
-      const parentId = parent.id.toLowerCase();
+      const parentText = parent.textContent?.toLowerCase() || '';
+      const parentClass = parent.className?.toLowerCase() || '';
+      const parentId = parent.id?.toLowerCase() || '';
       
-      if (COOKIE_KEYWORDS.some(keyword => 
-          parentClass.includes(keyword) || parentId.includes(keyword))) {
+      const parentContent = `${parentText} ${parentClass} ${parentId}`;
+      
+      // Check if parent has cookie-related keywords
+      const hasCookieContext = COOKIE_KEYWORDS.some(keyword => 
+        parentContent.includes(keyword)
+      );
+      
+      if (hasCookieContext) {
         return true;
       }
       
@@ -111,10 +126,19 @@ export class DOMUtils {
    */
   static clickElement(element: Element): void {
     try {
-      (element as HTMLElement).click();
-      console.log('Cookie Decliner: ✅ Successfully clicked decline button - consent processing complete!');
+      if (element instanceof HTMLElement) {
+        element.click();
+      } else {
+        // Fallback for non-HTML elements
+        const event = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        element.dispatchEvent(event);
+      }
     } catch (error) {
-      console.error('Cookie Decliner: Error clicking element:', error);
+      console.debug('Error clicking element:', error);
     }
   }
 
@@ -122,16 +146,13 @@ export class DOMUtils {
    * Check if DOM contains cookie-related content (for mutation observer)
    */
   static hasCookieContent(elements: Element[]): boolean {
-    const allKeywords = getAllCookieKeywords();
-    
-    return elements.some(el => {
-      const text = el.textContent?.toLowerCase() ?? '';
-      const className = (el as HTMLElement).className?.toLowerCase() ?? '';
-      const id = (el as HTMLElement).id?.toLowerCase() ?? '';
+    return elements.some(element => {
+      const text = element.textContent?.toLowerCase() || '';
+      const className = element.className?.toLowerCase() || '';
+      const id = element.id?.toLowerCase() || '';
       
-      return allKeywords.some(keyword =>
-        text.includes(keyword) || className.includes(keyword) || id.includes(keyword)
-      );
+      const content = `${text} ${className} ${id}`;
+      return COOKIE_KEYWORDS.some(keyword => content.includes(keyword));
     });
   }
 
@@ -141,15 +162,17 @@ export class DOMUtils {
   static findSourcePointIframes(): HTMLIFrameElement[] {
     const selectors = [
       'iframe[id*="sp_message"]',
-      'iframe[src*="sourcepoint"]', 
+      'iframe[id*="sp_"]',
+      'iframe[src*="sourcepoint"]',
       'iframe[src*="cmp"]',
       'iframe[name*="sp"]'
     ];
     
     const iframes: HTMLIFrameElement[] = [];
+    
     selectors.forEach(selector => {
-      const elements = document.querySelectorAll(selector);
-      iframes.push(...Array.from(elements) as HTMLIFrameElement[]);
+      const foundIframes = Array.from(document.querySelectorAll(selector)) as HTMLIFrameElement[];
+      iframes.push(...foundIframes);
     });
     
     return iframes;
