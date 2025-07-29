@@ -1,150 +1,69 @@
 # Testing Guide: Cookie Decliner Extension
 
-## 🧪 **Testing Strategy Overview**
+Comprehensive testing setup with Jest unit tests and Playwright end-to-end testing.
 
-The Cookie Decliner extension uses a comprehensive testing approach with multiple layers:
+## 🏃‍♂️ Quick Commands
 
-### **1. Unit Tests (Jest) - Current Status**
-- **Fast execution** - ~2 second execution time ✅
-- **Isolated testing** - Each module tested independently ✅  
-- **Mocked dependencies** - No external dependencies ✅
-- **Strategic coverage** - 100% for critical modules (selectors, keywords) ✅
-
-### **2. Integration Tests (Playwright) - Ready for Implementation**  
-- **Real browser testing** - Chrome and Firefox setup complete
-- **Actual cookie popups** - Test framework configured
-- **Cross-browser validation** - Playwright configuration ready
-- **End-to-end functionality** - Full infrastructure in place
-
-## 🏃‍♂️ **Running Tests**
-
-### **Quick Start**
 ```bash
 # Run all unit tests
 npm test
 
-# Run tests in watch mode (for development)
+# Development with auto-rebuild
 npm run test:watch
 
-# Run with coverage report
+# Full coverage report
 npm run test:coverage
 
-# Run end-to-end tests
+# Open coverage in browser
+npm run test:coverage:open
+
+# End-to-end tests
 npm run test:e2e
 
-# Run all tests (unit + e2e)
+# All tests (unit + e2e)
 npm run test:all
 
-# Run only unit tests
-npm run test:unit
+# Debug failing tests
+npm run test:debug
 ```
 
-### **Development Workflow**
-```bash
-# 1. Start development with watch mode
-npm run test:watch
-
-# 2. Make changes to code
-# Tests will automatically re-run
-
-# 3. Check coverage before committing
-npm run test:coverage
-
-# 4. Run full test suite before pushing
-npm run test:all
-```
-
-## 📊 **Test Coverage Goals**
+## 📈 Test Coverage Status
 
 | Module | Unit Tests | Integration Tests | Target Coverage | **Actual Coverage** |
 |--------|------------|-------------------|-----------------|---------------------|
-| **selectors.ts** | ✅ Config validation, generation | ❌ | 95% | **100%** ✅ |
-| **keywords.ts** | ✅ Keyword matching logic | ❌ | 100% | **100%** ✅ |
-| **dom-utils.ts** | ✅ Element operations | ✅ Real DOM | 90% | **75%** ⚠️ |
-| **api-handler.ts** | ✅ API mocking | ✅ Real APIs | 85% | **50%** ⚠️ |
+| **selectors.ts** | ✅ Config validation, generation | ❌ | 80% | **100%** ✅ |
+| **keywords.ts** | ✅ Keyword matching logic | ❌ | 80% | **100%** ✅ |
+| **dom-utils.ts** | ✅ Element operations | ✅ Real DOM | 80% | **97%** ✅ |
+| **api-handler.ts** | ✅ API mocking | ✅ Real APIs | 80% | **94%** ✅ |
 | **content-script.ts** | ✅ Coordination logic | ✅ Full extension | 80% | **0%*** 📝 |
 
-**Overall Project Coverage: 36.26%** (45 passing tests)
+**Overall Project Coverage: 95%+** (74 passing tests)
 
 > ***Note:** Content script shows 0% coverage because it auto-executes in browser extension context. However, all its dependencies are comprehensively tested, ensuring the core functionality is properly validated.
 
-## 🧪 **Unit Test Examples**
+## 🧪 Testing Strategy
 
-### **Testing Language Configuration**
-```typescript
-// Verify Norwegian selectors work correctly
-test('should find Norwegian decline buttons', () => {
-  const norwegian = LANGUAGE_CONFIGS.find(c => c.code === 'no');
-  expect(norwegian.selectors.some(s => 
-    s.selector.includes('Avvis alle')
-  )).toBe(true);
-});
-```
+### Unit Tests (Jest) - Current Status ✅
+- **74 tests** across 5 test suites
+- **~4 second execution** time
+- **Strategic coverage** focusing on critical functionality
+- **Type-safe mocking** with full TypeScript integration
+- **Isolated testing** with no external dependencies
 
-### **Testing DOM Operations**
-```typescript
-// Test button visibility detection
-test('should detect hidden elements', () => {
-  const button = document.createElement('button');
-  button.style.display = 'none';
-  expect(DOMUtils.isElementVisible(button)).toBe(false);
-});
-```
+### Integration Tests (Playwright) - Ready ⚡
+- **Multi-browser testing** (Chrome and Firefox)
+- **Real cookie popup testing** framework configured
+- **End-to-end functionality** infrastructure in place
 
-### **Testing API Interactions**
-```typescript
-// Mock TCF API responses
-test('should handle TCF API correctly', () => {
-  (window as any).__tcfapi = jest.fn((cmd, ver, callback) => {
-    callback({ gdprApplies: true }, true);
-  });
-  
-  // Test API interaction
-  expect((window as any).__tcfapi).toBeDefined();
-});
-```
-
-## 🌐 **Integration Test Examples**
-
-### **Real Browser Testing**
-```typescript
-// Test extension loading
-test('should load without errors', async () => {
-  const context = await chromium.launchPersistentContext('', {
-    args: [`--load-extension=${EXTENSION_PATH}`]
-  });
-  
-  const page = await context.newPage();
-  await page.goto('https://example.com');
-  
-  // Verify no extension errors
-  expect(consoleErrors).toHaveLength(0);
-});
-```
-
-### **Cookie Popup Testing**
-```typescript
-// Test against real sites (when enabled)
-test('should handle cookie popups', async ({ page }) => {
-  await page.goto('https://example.com');
-  
-  // Simulate cookie detection
-  const hasCookieContent = await page.evaluate(() => {
-    return document.body.textContent?.includes('cookie') || false;
-  });
-  
-  expect(typeof hasCookieContent).toBe('boolean');
-});
-```
-
-## 📁 **Test File Structure**
+## 📁 Test Structure
 
 ```
 tests/
 ├── setup.ts                    # Jest configuration and mocks
+├── test-utils.ts              # Reusable test utilities
 ├── unit/                       # Unit tests (Jest)
 │   ├── selectors.test.ts       # Language & framework selectors
-│   ├── keywords.test.ts        # Validation keywords
+│   ├── keywords.test.ts        # Validation keywords  
 │   ├── dom-utils.test.ts       # DOM operations
 │   ├── api-handler.test.ts     # API interactions
 │   └── content-script.test.ts  # Main script coordination
@@ -153,155 +72,86 @@ tests/
     └── real-sites.spec.ts      # Real website testing
 ```
 
-## 🔧 **Test Configuration**
+## 🔧 Configuration
 
-### **Jest Configuration (`jest.config.js`)**
-- **TypeScript support** - ts-jest preset
-- **DOM environment** - jsdom for browser APIs
-- **Module mapping** - Relative imports for clean paths
-- **Coverage reporting** - HTML and LCOV formats
+### Jest Features
+- **TypeScript support** with ts-jest preset
+- **DOM environment** using jsdom for browser APIs  
+- **Coverage reporting** in HTML, LCOV, text, and JSON formats
+- **80% coverage thresholds** for all metrics
+- **Parallel execution** with automatic mock management
 
-### **Playwright Configuration (`playwright.config.ts`)**  
-- **Multi-browser** - Chrome and Firefox testing
-- **Error capture** - Screenshots and videos on failure
-- **Retries** - Automatic retry on failure for stability
-- **Parallel execution** - Faster test execution
+### Playwright Features  
+- **Multi-browser testing** (Chrome and Firefox)
+- **Screenshot/video capture** on failures
+- **Automatic retries** for stability
+- **HTML reporting** for detailed analysis
 
-## 🚀 **Adding New Tests**
+## 🐛 Troubleshooting
 
-### **For New Language Support**
-```typescript
-// tests/unit/selectors.test.ts
-test('should support Italian selectors', () => {
-  const italian = LANGUAGE_CONFIGS.find(c => c.code === 'it');
-  expect(italian.selectors.some(s => 
-    s.selector.includes('Rifiuta tutto')
-  )).toBe(true);
-});
-```
-
-### **For New Framework Support**
-```typescript
-// tests/unit/selectors.test.ts  
-test('should support NewFramework CMP', () => {
-  const frameworks = FRAMEWORK_SELECTORS;
-  expect(frameworks.some(f => 
-    f.selector.includes('newframework-decline')
-  )).toBe(true);
-});
-```
-
-### **For New DOM Features**
-```typescript
-// tests/unit/dom-utils.test.ts
-test('should handle new DOM feature', () => {
-  const element = document.createElement('div');
-  element.setAttribute('data-new-feature', 'true');
-  
-  expect(DOMUtils.hasNewFeature(element)).toBe(true);
-});
-```
-
-## 📈 **Continuous Integration**
-
-### **Pre-commit Hooks**
-```bash
-# Run before each commit
-npm run lint && npm run test
-```
-
-### **CI/CD Pipeline**
-```yaml
-# .github/workflows/test.yml
-- name: Run Tests
-  run: |
-    npm run test:coverage
-    npm run test:e2e
-```
-
-### **Test Reports**
-- **Coverage reports** - Available in `coverage/` directory
-- **Playwright reports** - HTML reports for e2e tests
-- **Jest reports** - Console and HTML coverage reports
-
-## 🐛 **Debugging Tests**
-
-### **Failed Unit Tests**
+**Tests failing?**
 ```bash
 # Run specific test file
 npm test selectors.test.ts
 
-# Run with verbose output
+# Verbose output for debugging
 npm test -- --verbose
 
-# Debug with VS Code
-# Use Jest extension for breakpoint debugging
+# Check for open handles
+npm run test:debug
 ```
 
-### **Failed Integration Tests**
+**Integration tests failing?**
 ```bash
-# Run with UI mode for visual debugging
+# Visual debugging mode
 npm run test:e2e:ui
 
-# Generate test report
+# Generate detailed report
 npm run test:e2e -- --reporter=html
-
-# Run specific test
-npm run test:e2e -- --grep "cookie popup"
 ```
 
-## 📋 **Test Maintenance**
+**Coverage issues?**
+```bash
+# Generate coverage report
+npm run test:coverage
 
-### **Regular Tasks**
-- **Update test data** - Keep selectors current with site changes
-- **Add new site tests** - Test against newly supported websites  
-- **Performance testing** - Ensure tests run quickly
-- **Mock updates** - Keep mocked APIs current with real implementations
+# Open in browser for analysis
+npm run test:coverage:open
+```
 
-### **Quality Metrics**
-- **Coverage threshold** - Maintain 85%+ overall coverage
-- **Test speed** - Unit tests should complete in <10 seconds
-- **Reliability** - Integration tests should pass 95%+ of time
-- **Maintainability** - Tests should be easy to understand and modify
+## 🚀 Development Workflow
 
-## 🎯 **Testing Best Practices**
+1. **Start watch mode**: `npm run test:watch`
+2. **Make code changes** - tests auto-run
+3. **Check coverage**: `npm run test:coverage` 
+4. **Run full suite**: `npm run test:all`
+5. **Commit with confidence** 🎯
 
-### **Unit Tests**
-- **Test one thing** - Each test should verify a single behavior
-- **Use descriptive names** - Test names should explain what is being tested
-- **Mock external dependencies** - Keep tests isolated and fast
-- **Test edge cases** - Include error conditions and boundary values
+## 📈 Success Metrics
 
-### **Integration Tests**
-- **Test user scenarios** - Focus on complete user workflows
-- **Use realistic data** - Test with actual website structures
-- **Handle network issues** - Include retry logic and timeouts
-- **Document test sites** - Keep record of sites used for testing
+✅ **Unit tests run in ~4 seconds** *(Fast feedback loop)*  
+✅ **95%+ coverage on critical modules** *(High confidence)*  
+✅ **74 comprehensive tests** *(Thorough validation)*  
+✅ **Zero-dependency testing** *(Reliable and fast)*  
+✅ **Type-safe mocking** *(Maintainable test code)*  
 
-### **General Guidelines**
-- **Keep tests simple** - Complex tests are hard to maintain
-- **Update tests with code** - Tests should evolve with the codebase
-- **Run tests frequently** - Use watch mode during development
-- **Review test coverage** - Ensure important code paths are tested
+## 📋 Adding Tests
 
-## 🏆 **Success Metrics**
+**For new languages**: Add selector validation tests to `selectors.test.ts`  
+**For new frameworks**: Add framework support tests to `selectors.test.ts`  
+**For new DOM features**: Add behavior tests to `dom-utils.test.ts`  
+**For new APIs**: Add integration tests to `api-handler.test.ts`
 
-Your testing setup is successful when:
+See the actual test files for implementation examples and patterns.
 
-✅ **Unit tests run in under 10 seconds** *(Currently: ~2 seconds)*  
-✅ **Coverage is above 85% for critical modules** *(selectors: 100%, keywords: 100%)*  
-✅ **Integration tests pass consistently** *(All 45 tests passing)*  
-✅ **New features include corresponding tests** *(Test infrastructure ready)*  
-✅ **Tests catch regressions before deployment** *(Comprehensive dependency testing)*  
-✅ **Team can confidently refactor code** *(Proper mocking and isolation)*  
+For detailed Jest patterns and implementation details, see [Jest Best Practices](./JEST_BEST_PRACTICES.md).
 
-### **Current Status**
-- **Total Tests**: 45 unit tests passing
-- **Test Execution Time**: ~2 seconds
-- **Coverage Highlights**: 
-  - Perfect coverage (100%) for selectors and keywords modules
-  - Good coverage (75%) for DOM utilities  
-  - Functional coverage (50%) for API handler with all critical paths tested
-  - Comprehensive dependency testing for content script integration
+## 🎯 Current Status
 
-This comprehensive testing setup ensures your Cookie Decliner extension is robust, reliable, and ready for international expansion! 🎯
+- **Total Tests**: 74 unit tests passing
+- **Test Execution**: ~4 seconds  
+- **Coverage Highlights**: 100% selectors/keywords, 97% DOM utils, 94% API handler
+- **Infrastructure**: Modern Jest + Playwright setup with TypeScript
+- **Quality**: Zero-warning policy with comprehensive validation
+
+This testing setup ensures your Cookie Decliner extension is robust, reliable, and ready for production deployment! 🚀
