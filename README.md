@@ -39,34 +39,68 @@ A powerful browser extension that automatically declines cookie consent popups o
 ## 🛠️ Development Setup
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
+- Node.js (v18 or higher)
+- npm (comes with Node.js)
 - TypeScript knowledge for modifications
+
+### Technologies
+- **TypeScript 5.8.3** - Enhanced strict configuration with latest best practices
+- **esbuild 0.25.8** - Fast bundling with IIFE format for browser compatibility
+- **ESLint 9.32.0** - Latest flat config with comprehensive TypeScript rules
+- **Jest 30.0.5** - Unit testing with comprehensive coverage
+- **Playwright** - End-to-end testing for real browser environments
+
+For detailed build system information, see [Build System Guide](docs/build-system.md).
 
 ### Build Process
 ```bash
 # Install dependencies
 npm install
 
-# Build the extension
+# Build the extension (with linting and bundling)
 npm run build
 
 # Watch for changes during development
 npm run watch
 
+# Run linting
+npm run lint
+npm run lint:fix
+
 # Run tests
-npm run test
+npm test
 
 # Run tests with coverage
 npm run test:coverage
 
 # Run end-to-end tests
 npm run test:e2e
+
+# Run all tests (unit + e2e)
+npm run test:all
 ```
+
+## 🧪 Testing
+
+The project includes comprehensive testing with Jest and Playwright. For detailed testing information, see:
+- **[Testing Guide](docs/testing-guide.md)** - Complete testing setup and workflows
+- **[Jest Best Practices](docs/JEST_BEST_PRACTICES.md)** - Implementation details and patterns
+
+**Quick Test Commands:**
+```bash
+npm test              # Run unit tests
+npm run test:coverage # Generate coverage report  
+npm run test:all      # Run all tests (unit + e2e)
+npm run lint:check    # Run linting with zero warnings
+```
+
+**Current Status:** 74 unit tests, 97% coverage for DOM utilities (dom-utils), 94% coverage for API handler (api-handler)
 
 ### Project Structure
 ```
 cookie-decliner/
+├── dist/
+│   └── content-script.js   # Bundled extension script (IIFE format)
 ├── src/
 │   ├── content-script.ts   # Main extension logic
 │   ├── api-handler.ts      # API integration (TCF, SourcePoint)
@@ -76,31 +110,25 @@ cookie-decliner/
 │   └── types.ts           # TypeScript type definitions
 ├── tests/
 │   ├── unit/              # Unit tests (Jest)
-│   └── e2e/               # End-to-end tests (Playwright)
+│   ├── e2e/               # End-to-end tests (Playwright)
+│   ├── setup.ts           # Jest configuration and mocks
+│   └── test-utils.ts      # Reusable test utilities
 ├── docs/                  # Documentation
-├── icons/                 # Extension icons
-├── manifest.json          # Extension configuration
-└── package.json          # Dependencies and scripts
-```
-
-## 🧪 Testing
-
-The project includes comprehensive testing:
-
-- **Unit Tests**: 45 tests with Jest
-- **Coverage**: 100% for selectors and keywords, 75% for DOM utils, 50% for API handler
-- **Integration Tests**: Playwright setup for e2e testing
-- **Fast Execution**: ~2 second test suite
-
-```bash
-# Run all tests
-npm run test:all
-
-# Run with coverage report
-npm run test:coverage
-
-# Run in watch mode during development
-npm run test:watch
+│   ├── README.md          # Documentation index
+│   ├── setup-instructions.md # Development setup guide
+│   ├── build-system.md    # Build system and bundling guide
+│   ├── testing-guide.md   # Comprehensive testing guide
+│   ├── typescript-best-practices.md # TypeScript coding standards
+│   ├── refactoring-summary.md # Change history
+│   └── JEST_BEST_PRACTICES.md # Jest implementation details
+├── icons/                 # Extension icons (SVG format)
+├── manifest.json          # Extension configuration (Manifest V2)
+├── popup.html            # Extension popup interface
+├── package.json          # Dependencies and scripts
+├── jest.config.js        # Jest configuration
+├── playwright.config.ts  # Playwright configuration
+├── tsconfig.json         # TypeScript configuration (enhanced strict mode)
+└── eslint.config.js      # ESLint configuration (flat config with TypeScript)
 ```
 
 ## 🎯 How It Works
@@ -121,19 +149,10 @@ The extension uses multiple detection strategies to identify and decline cookie 
 - **Usercentrics** - Comprehensive selector coverage
 - **Custom Implementations** - Generic pattern matching
 
-## 🌐 Language Support
-
-- **Norwegian** (no) - Comprehensive support
-- **English** (en) - Full coverage
-- **German** (de) - Complete implementation
-- **French** (fr) - Full support
-
-Each language includes specific selectors for "decline all" buttons and validation keywords.
-
 ## 🌐 Browser Compatibility
 
 | Browser | Version | Manifest | Status |
-|---------|---------|----------|---------|
+|---------|---------|----------|--------|
 | Firefox | 88+ | V2 | ✅ Fully Supported |
 | Chrome | 88+ | V2 | ✅ Fully Supported |
 | Edge | 88+ | V2 | ✅ Should Work* |
@@ -187,14 +206,16 @@ Contributions are welcome! Areas for improvement:
 
 ### Development Workflow
 1. Fork the repository
-2. Create a feature branch
-3. Make changes and test thoroughly
+2. Create a feature branch: `git checkout -b feature/new-framework`
+3. Make changes and add tests (see [Testing Guide](docs/testing-guide.md))
 4. Run the test suite: `npm run test:all`
-5. Submit a pull request with detailed description
+5. Ensure linting passes: `npm run lint:check` (zero warnings required)
+6. Build the extension: `npm run build` (includes pre-build linting)
+7. Submit a pull request with detailed description
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🔒 Privacy
 
@@ -207,8 +228,15 @@ This extension:
 ## 📞 Support
 
 - **Issues**: Report bugs and feature requests via GitHub Issues
-- **Documentation**: See `docs/` directory for detailed documentation
+- **Documentation**: 
+  - See `docs/setup-instructions.md` for development setup
+  - See `docs/build-system.md` for build system details
+  - See `docs/testing-guide.md` for comprehensive testing information
+  - See `docs/typescript-best-practices.md` for code standards
+  - See `docs/JEST_BEST_PRACTICES.md` for Jest implementation details
+  - See `docs/` directory for additional documentation
 - **Development**: Check TypeScript source code in `src/` directory
+- **Testing**: Run `npm run test:coverage:open` to explore test coverage
 
 ---
 
