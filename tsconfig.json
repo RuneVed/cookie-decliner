@@ -8,6 +8,7 @@
     
     // Type Checking - Enhanced strict mode
     "strict": true,
+    "noImplicitAny": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -16,10 +17,13 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
     
     // Modules
     "resolveJsonModule": true,
     "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
     
     // Emit
     "declaration": true,
@@ -30,15 +34,15 @@
     "rootDir": "./src",
     "noEmitOnError": true,
     
+    // Emit Constraints
+    "isolatedModules": true,
+    
     // Interop Constraints
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    
-    // Completeness
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "tests"]
 }

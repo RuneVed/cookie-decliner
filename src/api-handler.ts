@@ -1,232 +1,11 @@
 // API handlers for different cookie consent management platforms
-import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI } from './types.js';
+import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI } from './types';
 
 export class APIHandler {
   private static consentProcessed = false;
 
   /**
-   * Check for and handle TCF API v2.0
-   */
-  static handleTCFAPI(): void {
-    console.log('Cookie Decliner: Setting up TCF API handlers');
-    
-    if (!hasTCFAPI(window)) {
-      console.log('Cookie Decliner: TCF API not available');
-      return;
-    }
-
-    try {
-      // Get current TCF data - window is now properly typed as WindowWithAPIs
-      window.__tcfapi('getTCData', 2, (tcData: TCFData | null, success: boolean) => {
-        console.log('Cookie Decliner: TCF Data:', tcData, 'Success:', success);
-        if (success && tcData) {
-          console.log('Cookie Decliner: CMP Status:', tcData.cmpStatus);
-          console.log('Cookie Decliner: Event Status:', tcData.eventStatus);
-          console.log('Cookie Decliner: GDPR Applies:', tcData.gdprApplies);
-          
-          // If CMP is loaded but no consent given yet, try to decline
-          if (tcData.cmpStatus === 'loaded' && (!tcData.tcString || tcData.eventStatus === 'cmpuishown')) {
-            console.log('Cookie Decliner: Attempting to decline all via TCF API');
-            this.declineAllConsent();
-          }
-        }
-      });
-      
-      // Set up event listener for future CMP UI shows
-      window.__tcfapi('addEventListener', 2, (tcData: TCFData | null, success: boolean) => {
-        console.log('Cookie Decliner: TCF Event:', tcData, 'Success:', success);
-        if (success && tcData && tcData.eventStatus === 'cmpuishown') {
-          console.log('Cookie Decliner: CMP UI shown, attempting to decline');
-          setTimeout(() => this.declineAllConsent(), 500);
-        }
-      });
-    } catch (error) {
-      console.log('Cookie Decliner: Error using TCF API:', error);
-    }
-  }
-
-  /**
-   * Handle SourcePoint CMP API
-   */
-  static handleSourcePointAPI(): void {
-    console.log('Cookie Decliner: Setting up SourcePoint API handlers');
-    
-    if (!hasSourcePointAPI(window)) {
-      console.log('Cookie Decliner: SourcePoint API not available');
-      return;
-    }
-
-    try {
-      const sp = window._sp_; // window is now properly typed as WindowWithAPIs
-      if (!sp) {
-        console.log('Cookie Decliner: SourcePoint API object is null');
-        return;
-      }
-      
-      console.log('Cookie Decliner: SourcePoint object structure:', Object.keys(sp));
-      
-      // Try to find and call decline functions
-      if (sp.config?.events?.onMessageChoiceSelect) {
-        console.log('Cookie Decliner: Attempting SourcePoint onMessageChoiceSelect with choice 11 (reject all)');
-        sp.config.events.onMessageChoiceSelect({ choice: 11 });
-      }
-      
-      // Try executeMessaging if available
-      if (sp.executeMessaging) {
-        console.log('Cookie Decliner: Attempting SourcePoint executeMessaging');
-        sp.executeMessaging();
-      }
-      
-    } catch (error) {
-      console.log('Cookie Decliner: Error using SourcePoint API:', error);
-    }
-  }
-
-  /**
-   * Attempt to decline all consent via available APIs
-   */
-  static declineAllConsent(): void {
-    if (this.consentProcessed) {
-      return;
-    }
-
-    console.log('Cookie Decliner: Attempting to decline all consent...');
-    
-    // Method 1: Try TCF API if available
-    const windowWithAPI = window as WindowWithAPIs;
-    if (typeof windowWithAPI.__tcfapi === 'function') {
-      console.log('Cookie Decliner: Using TCF API to decline');
-      try {
-        // Try the ping command first to ensure API is ready
-        windowWithAPI.__tcfapi('ping', 2, (pingData: unknown, success: boolean) => {
-          console.log('Cookie Decliner: TCF ping result:', pingData, 'Success:', success);
-          
-          if (success && pingData) {
-            console.log('Cookie Decliner: TCF API is ready, attempting to decline all consent');
-            
-            // Try to set all purposes and vendors to false
-            windowWithAPI.__tcfapi?.('setAllConsentAndLegitInterest', 2, (result: unknown, success: boolean) => {
-              console.log('Cookie Decliner: setAllConsentAndLegitInterest result:', result);
-              if (success) {
-                console.log('Cookie Decliner: Successfully declined all consent via TCF API!');
-                this.consentProcessed = true;
-              } else {
-                console.log('Cookie Decliner: TCF API decline failed, trying alternative methods');
-                this.tryAlternativeDeclineMethods();
-              }
-            }, false, false);
-          } else {
-            console.log('Cookie Decliner: TCF API ping failed, trying alternative methods');
-            this.tryAlternativeDeclineMethods();
-          }
-        });
-        
-      } catch (error) {
-        console.log('Cookie Decliner: Error with TCF API:', error);
-        this.tryAlternativeDeclineMethods();
-      }
-    } else {
-      console.log('Cookie Decliner: No TCF API available, trying alternative methods');
-      this.tryAlternativeDeclineMethods();
-    }
-  }
-
-  /**
-   * Try alternative decline methods when primary APIs fail
-   */
-  private static tryAlternativeDeclineMethods(): void {
-    console.log('Cookie Decliner: Trying alternative decline methods');
-    
-    // Method 2: Try SourcePoint specific API
-    const windowWithAPI = window as WindowWithAPIs;
-    if (windowWithAPI._sp_) {
-      console.log('Cookie Decliner: Using SourcePoint _sp_ object');
-      try {
-        const sp = windowWithAPI._sp_;
-        
-        // Try different SourcePoint methods
-        if (sp.config?.events?.onMessageChoiceSelect) {
-          console.log('Cookie Decliner: Calling SourcePoint onMessageChoiceSelect with choice 11');
-          sp.config.events.onMessageChoiceSelect({ choice: 11 });
-        }
-        
-        if (typeof sp.executeMessaging === 'function') {
-          console.log('Cookie Decliner: Calling SourcePoint executeMessaging');
-          sp.executeMessaging();
-        }
-        
-        // Try to find and call any choice-related functions
-        Object.keys(sp).forEach(key => {
-          if (key.toLowerCase().includes('choice') || key.toLowerCase().includes('decline')) {
-            console.log('Cookie Decliner: Found SourcePoint method:', key, typeof sp[key]);
-            const method = sp[key];
-            if (typeof method === 'function') {
-              try {
-                (method as (arg: { choice: number }) => void)({ choice: 11 });
-                console.log('Cookie Decliner: Called SourcePoint method:', key);
-              } catch (e) {
-                console.log('Cookie Decliner: Error calling SourcePoint method:', key, e);
-              }
-            }
-          }
-        });
-        
-      } catch (error) {
-        console.log('Cookie Decliner: Error with SourcePoint API:', error);
-      }
-    }
-    
-    // Method 3: Try iframe communication
-    this.tryIframeCommunication();
-  }
-
-  /**
-   * Communicate with SourcePoint iframes
-   */
-  private static tryIframeCommunication(): void {
-    const sourcePointIframes = document.querySelectorAll('iframe[id*="sp_message"], iframe[src*="sourcepoint"], iframe[src*="cmp"]');
-    
-    sourcePointIframes.forEach((iframe, index) => {
-      const iframeElement = iframe as HTMLIFrameElement;
-      if (iframeElement.contentWindow) {
-        console.log(`Cookie Decliner: Attempting iframe communication with SourcePoint iframe ${index + 1}`);
-        try {
-          // Extract message ID from iframe if possible
-          let messageId = '1301113'; // Default fallback
-          const srcUrl = iframeElement.src;
-          const idMatch = srcUrl.match(/message_id=(\d+)/);
-          if (idMatch?.[1]) {
-            messageId = idMatch[1];
-            console.log(`Cookie Decliner: Detected message ID: ${messageId}`);
-          }
-          
-          // Try different SourcePoint message formats
-          const messages = [
-            { type: 'sp.decline', action: 'decline' },
-            { type: 'choice', action: 11 },
-            { name: 'sp.choice', choice: 11 },
-            { msgType: 'sp.decline' },
-            { action: 'reject', type: 'all' },
-            { messageId, choice: 11 },
-            { name: 'sp.choiceSelect', choice: 11, messageId }
-          ];
-          
-          messages.forEach((message, msgIndex) => {
-            setTimeout(() => {
-              console.log(`Cookie Decliner: Sending message ${msgIndex + 1} to iframe ${index + 1}:`, message);
-              iframeElement.contentWindow?.postMessage(message, '*');
-            }, msgIndex * 200);
-          });
-          
-        } catch (error) {
-          console.log(`Cookie Decliner: Error sending iframe messages to iframe ${index + 1}:`, error);
-        }
-      }
-    });
-  }
-
-  /**
-   * Check for global cookie consent APIs
+   * Check for global cookie consent APIs - MAIN ENTRY POINT
    */
   static checkForGlobalAPIs(): void {
     if (this.consentProcessed) {
@@ -254,6 +33,138 @@ export class APIHandler {
     
     // Log other API availability
     this.logOtherAPIs();
+  }
+
+  /**
+   * Check for and handle TCF API v2.0
+   */
+  static handleTCFAPI(): void {
+    if (!hasTCFAPI(window)) {
+      console.log('Cookie Decliner: No TCF API found');
+      return;
+    }
+
+    console.log('Cookie Decliner: Setting up TCF API handlers');
+
+    const windowWithAPI = window as WindowWithAPIs;
+    
+    try {
+      // Get current consent data
+      windowWithAPI.__tcfapi('getTCData', 2, (tcData: TCFData, success: boolean) => {
+        console.log('Cookie Decliner: TCF Data received:', { success, tcData });
+        
+        if (success && tcData) {
+          console.log('Cookie Decliner: CMP Status:', tcData.cmpStatus);
+          console.log('Cookie Decliner: Event Status:', tcData.eventStatus);
+          
+          // If CMP is showing or loaded, attempt to decline
+          if (tcData.eventStatus === 'cmpuishown' || tcData.cmpStatus === 'loaded') {
+            console.log('Cookie Decliner: Attempting to decline all via TCF API');
+            this.declineAllConsent();
+          }
+        }
+      });
+      
+      // Set up event listener for when CMP UI shows
+      windowWithAPI.__tcfapi('addEventListener', 2, (tcData: TCFData, success: boolean) => {
+        if (success && tcData && tcData.eventStatus === 'cmpuishown') {
+          console.log('Cookie Decliner: CMP UI shown, attempting to decline');
+          this.declineAllConsent();
+        }
+      });
+      
+    } catch (error) {
+      console.log('Cookie Decliner: Error using TCF API:', error);
+    }
+  }
+
+  /**
+   * Handle SourcePoint CMP API
+   */
+  static handleSourcePointAPI(): void {
+    if (!hasSourcePointAPI(window)) {
+      console.log('Cookie Decliner: No SourcePoint API found');
+      return;
+    }
+
+    console.log('Cookie Decliner: Setting up SourcePoint API handlers');
+    
+    const windowWithAPI = window as WindowWithAPIs;
+    const sp = windowWithAPI._sp_;
+    
+    if (!sp) {
+      console.log('Cookie Decliner: SourcePoint API object is null');
+      return;
+    }
+    
+    try {
+      // Method 1: Use onMessageChoiceSelect event if available
+      if (sp.config?.events?.onMessageChoiceSelect) {
+        console.log('Cookie Decliner: Attempting SourcePoint onMessageChoiceSelect with choice 11 (reject all)');
+        sp.config.events.onMessageChoiceSelect({ choice: 11 });
+      }
+      
+      // Method 2: Use executeMessaging if available
+      if (typeof sp.executeMessaging === 'function') {
+        console.log('Cookie Decliner: Attempting SourcePoint executeMessaging');
+        sp.executeMessaging();
+      }
+      
+      // Method 3: Try other SourcePoint methods if available
+      if (typeof sp.declineAll === 'function') {
+        console.log('Cookie Decliner: Attempting SourcePoint declineAll');
+        sp.declineAll();
+      }
+      
+      if (typeof sp.choiceReject === 'function') {
+        console.log('Cookie Decliner: Attempting SourcePoint choiceReject');
+        sp.choiceReject();
+      }
+      
+    } catch (error) {
+      console.log('Cookie Decliner: Error using SourcePoint API:', error);
+    }
+  }
+
+  /**
+   * Attempt to decline all consent via available APIs
+   */
+  static declineAllConsent(): void {
+    if (this.consentProcessed) {
+      return;
+    }
+
+    console.log('Cookie Decliner: Attempting to decline all consent...');
+    
+    const windowWithAPI = window as WindowWithAPIs;
+    
+    // First try TCF API if available
+    if (typeof windowWithAPI.__tcfapi === 'function') {
+      console.log('Cookie Decliner: Using TCF API to decline');
+      
+      // Use ping to check if CMP is ready
+      windowWithAPI.__tcfapi('ping', 2, (pingData: { cmpLoaded?: boolean; cmpStatus?: string }, success: boolean) => {
+        if (success && pingData?.cmpLoaded) {
+          console.log('Cookie Decliner: CMP is loaded, attempting to decline all');
+          
+          // Try to decline all purposes and vendors
+          windowWithAPI.__tcfapi('setAllConsentAndLegitInterest', 2, (result: { success?: boolean }, success: boolean) => {
+            if (success && result?.success) {
+              console.log('Cookie Decliner: Successfully declined all consent via TCF API');
+              this.setConsentProcessed(true);
+            } else {
+              console.log('Cookie Decliner: TCF decline failed, trying alternatives');
+              this.tryAlternativeDeclineMethods();
+            }
+          }, false, false, [], [], false, false);
+        } else {
+          console.log('Cookie Decliner: CMP not ready, trying alternatives');
+          this.tryAlternativeDeclineMethods();
+        }
+      });
+    } else {
+      this.tryAlternativeDeclineMethods();
+    }
   }
 
   /**
@@ -311,6 +222,104 @@ export class APIHandler {
     if (tcfLocator) {
       console.log('Cookie Decliner: Found TCF API locator iframe');
     }
+  }
+
+  /**
+   * Try alternative decline methods when primary APIs fail
+   */
+  private static tryAlternativeDeclineMethods(): void {
+    console.log('Cookie Decliner: Trying alternative decline methods');
+    
+    const windowWithAPI = window as WindowWithAPIs;
+    
+    // Try SourcePoint API if available
+    if (windowWithAPI._sp_) {
+      console.log('Cookie Decliner: Using SourcePoint _sp_ object');
+      try {
+        const sp = windowWithAPI._sp_;
+        
+        // Method 1: onMessageChoiceSelect with choice 11 (reject all)
+        if (sp.config?.events?.onMessageChoiceSelect) {
+          sp.config.events.onMessageChoiceSelect({ choice: 11 });
+        }
+        
+        // Method 2: executeMessaging
+        if (typeof sp.executeMessaging === 'function') {
+          sp.executeMessaging();
+        }
+        
+        // Method 3: Direct decline methods
+        if (typeof sp.declineAll === 'function') {
+          sp.declineAll();
+        }
+        
+        if (typeof sp.choiceReject === 'function') {
+          sp.choiceReject();
+        }
+        
+        this.setConsentProcessed(true);
+        return;
+      } catch (error) {
+        console.log('Cookie Decliner: Error with SourcePoint API:', error);
+      }
+    }
+    
+    // Try iframe communication for embedded CMPs
+    this.tryIframeCommunication();
+  }
+
+  /**
+   * Communicate with SourcePoint iframes
+   */
+  private static tryIframeCommunication(): void {
+    const iframes = document.querySelectorAll('iframe');
+    let iframeCount = 0;
+    
+    iframes.forEach((iframe, index) => {
+      const iframeElement = iframe as HTMLIFrameElement;
+      
+      // Check if this is a SourcePoint iframe
+      if (iframeElement.id?.includes('sp_message') || 
+          iframeElement.src?.includes('sourcepoint') ||
+          iframeElement.src?.includes('cmp')) {
+        
+        iframeCount++;
+        console.log(`Cookie Decliner: Attempting iframe communication with SourcePoint iframe ${iframeCount}`);
+        
+        // Extract message ID from iframe src or id
+        const messageIdMatch = iframeElement.src?.match(/message_id=(\d+)/) || 
+                             iframeElement.id?.match(/\d+/);
+        const messageId = messageIdMatch?.[1] || messageIdMatch?.[0];
+        
+        if (messageId) {
+          console.log(`Cookie Decliner: Detected message ID: ${messageId}`);
+        }
+        
+        // Try to communicate with the iframe
+        setTimeout(() => {
+          try {
+            if (iframeElement.contentWindow) {
+              // Send decline message to iframe
+              const declineMessage = {
+                type: 'sp.choice',
+                choice: 11, // Reject all
+                messageId: messageId
+              };
+              
+              iframeElement.contentWindow.postMessage(declineMessage, '*');
+              
+              // Also try alternative message formats
+              iframeElement.contentWindow.postMessage({
+                name: 'sp.messageChoiceSelect',
+                body: { choice: 11, messageId: messageId }
+              }, '*');
+            }
+          } catch (error) {
+            console.log(`Cookie Decliner: Error communicating with iframe ${index + 1}:`, error);
+          }
+        }, 500);
+      }
+    });
   }
 
   static setConsentProcessed(processed: boolean): void {

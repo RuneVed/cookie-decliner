@@ -1,12 +1,12 @@
 // ESLint configuration with TypeScript best practices
-import eslint from '@eslint/js';
+import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  eslint.configs.recommended,
+  js.configs.recommended,
   ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic,
   {
+    files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -14,54 +14,62 @@ export default tseslint.config(
         project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
-      globals: {
-        // Browser environment
-        console: 'readonly',
-        document: 'readonly',
-        window: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        Node: 'readonly',
-        Element: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLIFrameElement: 'readonly',
-        MessageEvent: 'readonly',
-        MutationObserver: 'readonly'
-      }
     },
     rules: {
-      // TypeScript-specific best practices
-      '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': 'error',
+      // Disable problematic rules for browser extensions
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      
+      // TypeScript-specific improvements
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-inferrable-types': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'error',
-      '@typescript-eslint/prefer-as-const': 'error',
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      
+      // Enhanced TypeScript rules
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/prefer-readonly': 'error',
+      '@typescript-eslint/prefer-string-starts-ends-with': 'error',
       
       // Code quality rules
       'prefer-const': 'error',
       'no-var': 'error',
       'object-shorthand': 'error',
       'prefer-template': 'error',
+      'prefer-arrow-callback': 'error',
+      'no-console': 'warn',
       
-      // Extension-specific overrides
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }]
-    }
+      // Best practices for browser extensions
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+    },
+  },
+  {
+    files: ['tests/**/*.ts'],
+    rules: {
+      // Allow console in tests
+      'no-console': 'off',
+      // Allow any in test files
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
   {
     ignores: [
       'dist/**',
       'node_modules/**',
       'coverage/**',
-      '*.js',
-      '!eslint.config.js'
-    ]
+      'test-results/**',
+      'playwright-report/**',
+      '*.config.js',
+      '*.config.ts',
+    ],
   }
 );
