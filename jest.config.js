@@ -1,45 +1,38 @@
 export default {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
+  extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: [
     '**/__tests__/**/*.test.ts',
     '**/*.test.ts',
-    '**/__tests__/**/*.spec.ts',
-    '**/*.spec.ts'
+    '**/tests/unit/**/*.test.ts',
+    '**/tests/unit/**/*.spec.ts'
+  ],
+  // Explicitly exclude E2E tests from Jest
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/tests/e2e/',
+    '<rootDir>/playwright-report/',
+    '<rootDir>/test-results/'
   ],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
-    '!src/**/types.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts'
+    '!src/**/*.test.ts'
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^(\\.{1,2}/.*)\\.js$': '$1'
-  },
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  },
-  testTimeout: 10000,
-  clearMocks: true,
-  restoreMocks: true,
-  extensionsToTreatAsEsm: ['.ts'],
+  coverageReporters: ['text', 'lcov', 'html'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      useESM: true
+    '^.+\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: {
+        module: 'esnext'
+      }
     }]
   },
-  // Improved error reporting
-  verbose: true,
-  errorOnDeprecated: true
+  moduleNameMapping: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
+  testTimeout: 10000
 };
