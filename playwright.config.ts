@@ -22,9 +22,10 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
   ],
-  webServer: {
-    command: 'npm run build',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
-  },
+  // Browser extensions don't need a web server
+  // webServer: {
+  //   command: 'npm run build',
+  //   port: 3000,
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });

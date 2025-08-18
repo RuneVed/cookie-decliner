@@ -26,8 +26,8 @@ describe('Selectors Configuration', () => {
       expect(english).toBeDefined();
       expect(english!.selectors.length).toBeGreaterThan(0);
       
-      // Check for specific English terms
-      const englishSelectors = english!.selectors.map(s => s.selector).join(' ');
+      // Check for specific English terms (case-insensitive)
+      const englishSelectors = english!.selectors.map(s => s.selector).join(' ').toLowerCase();
       expect(englishSelectors).toContain('decline');
       expect(englishSelectors).toContain('reject');
     });

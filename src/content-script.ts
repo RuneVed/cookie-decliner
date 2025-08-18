@@ -142,11 +142,14 @@ class CookieDecliner {
   }
 
   private isSourcePointMessage(event: MessageEvent): boolean {
-    return event.origin.includes('sourcepoint') || 
-           event.origin.includes('cmp') ||
-           (typeof event.data === 'object' && 
+    const origin = event.origin || '';
+    const hasOriginKeywords = origin.includes('sourcepoint') || origin.includes('cmp');
+    const hasNameProperty = typeof event.data === 'object' && 
             event.data !== null && 
-            (event.data as Record<string, unknown>)['name']?.toString().startsWith('sp.'));
+            typeof (event.data as Record<string, unknown>)['name'] === 'string' &&
+            ((event.data as Record<string, unknown>)['name'] as string).startsWith('sp.');
+    
+    return hasOriginKeywords || Boolean(hasNameProperty);
   }
 
   private handleSourcePointMessage(data: unknown): void {

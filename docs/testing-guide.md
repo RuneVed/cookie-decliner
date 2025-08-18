@@ -33,19 +33,19 @@ npm run test:debug
 |--------|------------|-------------------|-----------------|---------------------|
 | **selectors.ts** | ✅ Config validation, generation | ❌ | 80% | **100%** ✅ |
 | **keywords.ts** | ✅ Keyword matching logic | ❌ | 80% | **100%** ✅ |
-| **dom-utils.ts** | ✅ Element operations | ✅ Real DOM | 80% | **97%** ✅ |
-| **api-handler.ts** | ✅ API mocking | ✅ Real APIs | 80% | **94%** ✅ |
+| **dom-utils.ts** | ✅ Element operations | ✅ Real DOM | 80% | **94.3%** ✅ |
+| **api-handler.ts** | ✅ API mocking | ✅ Real APIs | 80% | **90.6%** ✅ |
 | **content-script.ts** | ✅ Coordination logic | ✅ Full extension | 80% | **0%*** 📝 |
 
-**Overall Project Coverage: 95%+** (74 passing tests)
+**Overall Project Coverage: 66%** (73 passing tests)
 
 > ***Note:** Content script shows 0% coverage because it auto-executes in browser extension context. However, all its dependencies are comprehensively tested, ensuring the core functionality is properly validated.
 
 ## 🧪 Testing Strategy
 
 ### Unit Tests (Jest) - Current Status ✅
-- **74 tests** across 5 test suites
-- **~4 second execution** time
+- **73 tests** across 5 test suites
+- **~3.6 second execution** time
 - **Strategic coverage** focusing on critical functionality
 - **Type-safe mocking** with full TypeScript integration
 - **Isolated testing** with no external dependencies
@@ -129,9 +129,9 @@ npm run test:coverage:open
 
 ## 📈 Success Metrics
 
-✅ **Unit tests run in ~4 seconds** *(Fast feedback loop)*  
-✅ **95%+ coverage on critical modules** *(High confidence)*  
-✅ **74 comprehensive tests** *(Thorough validation)*  
+✅ **Unit tests run in ~3.6 seconds** *(Fast feedback loop)*  
+✅ **66% overall coverage, 100% on critical modules** *(High confidence)*  
+✅ **73 comprehensive tests** *(Thorough validation)*  
 ✅ **Zero-dependency testing** *(Reliable and fast)*  
 ✅ **Type-safe mocking** *(Maintainable test code)*  
 
@@ -148,9 +148,9 @@ For detailed Jest patterns and implementation details, see [Jest Best Practices]
 
 ## 🎯 Current Status
 
-- **Total Tests**: 74 unit tests passing
-- **Test Execution**: ~4 seconds  
-- **Coverage Highlights**: 100% selectors/keywords, 97% DOM utils, 94% API handler
+- **Total Tests**: 73 unit tests passing
+- **Test Execution**: ~3.6 seconds  
+- **Coverage Highlights**: 100% selectors/keywords, 94% DOM utils, 91% API handler
 - **Infrastructure**: Modern Jest + Playwright setup with TypeScript
 - **Quality**: Zero-warning policy with comprehensive validation
 

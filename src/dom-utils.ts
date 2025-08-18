@@ -33,7 +33,7 @@ export class DOMUtils {
     
     return elements.filter(element => {
       const text = element.textContent?.toLowerCase() || '';
-      return text.includes(textContent.toLowerCase());
+      return text.includes((textContent || '').toLowerCase());
     });
   }
 
@@ -168,13 +168,13 @@ export class DOMUtils {
       'iframe[name*="sp"]'
     ];
     
-    const iframes: HTMLIFrameElement[] = [];
+    const iframeSet = new Set<HTMLIFrameElement>();
     
     selectors.forEach(selector => {
       const foundIframes = Array.from(document.querySelectorAll(selector)) as HTMLIFrameElement[];
-      iframes.push(...foundIframes);
+      foundIframes.forEach(iframe => iframeSet.add(iframe));
     });
     
-    return iframes;
+    return Array.from(iframeSet);
   }
 }

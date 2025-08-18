@@ -331,11 +331,11 @@ describe('DOMUtils', () => {
       const sourcePointIframes = DOMUtils.findSourcePointIframes();
       
       // Assert
-      // sourcePointIframe matches 2 selectors: [src*="sourcepoint"] and [src*="cmp"]
-      // cmpIframe matches 1 selector: [src*="cmp"]
-      expect(sourcePointIframes).toHaveLength(3);
-      expect(sourcePointIframes.filter(iframe => iframe === sourcePointIframe)).toHaveLength(2);
-      expect(sourcePointIframes.filter(iframe => iframe === cmpIframe)).toHaveLength(1);
+      // sourcePointIframe matches 2 selectors but should only appear once (deduplicated)
+      // cmpIframe matches 1 selector
+      expect(sourcePointIframes).toHaveLength(2);
+      expect(sourcePointIframes).toContain(sourcePointIframe);
+      expect(sourcePointIframes).toContain(cmpIframe);
       expect(sourcePointIframes).not.toContain(regularIframe);
     });
 
@@ -390,9 +390,9 @@ describe('DOMUtils', () => {
       const sourcePointIframes = DOMUtils.findSourcePointIframes();
       
       // Assert
-      // This iframe matches 3 selectors: [id*="sp_"], [src*="sourcepoint"], and [name*="sp"]
-      expect(sourcePointIframes).toHaveLength(3);
-      expect(sourcePointIframes.every(iframe => iframe === multiMatchIframe)).toBe(true);
+      // This iframe matches 3 selectors but should only be returned once (deduplicated)
+      expect(sourcePointIframes).toHaveLength(1);
+      expect(sourcePointIframes[0]).toBe(multiMatchIframe);
     });
   });
 

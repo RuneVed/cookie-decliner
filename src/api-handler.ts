@@ -50,7 +50,7 @@ export class APIHandler {
     
     try {
       // Get current consent data
-      windowWithAPI.__tcfapi('getTCData', 2, (tcData: TCFData, success: boolean) => {
+      windowWithAPI.__tcfapi?.('getTCData', 2, (tcData: TCFData, success: boolean) => {
         console.log('Cookie Decliner: TCF Data received:', { success, tcData });
         
         if (success && tcData) {
@@ -66,7 +66,7 @@ export class APIHandler {
       });
       
       // Set up event listener for when CMP UI shows
-      windowWithAPI.__tcfapi('addEventListener', 2, (tcData: TCFData, success: boolean) => {
+      windowWithAPI.__tcfapi?.('addEventListener', 2, (tcData: TCFData, success: boolean) => {
         if (success && tcData && tcData.eventStatus === 'cmpuishown') {
           console.log('Cookie Decliner: CMP UI shown, attempting to decline');
           this.declineAllConsent();
@@ -148,7 +148,7 @@ export class APIHandler {
           console.log('Cookie Decliner: CMP is loaded, attempting to decline all');
           
           // Try to decline all purposes and vendors
-          windowWithAPI.__tcfapi('setAllConsentAndLegitInterest', 2, (result: { success?: boolean }, success: boolean) => {
+          windowWithAPI.__tcfapi?.('setAllConsentAndLegitInterest', 2, (result: any, success: boolean) => {
             if (success && result?.success) {
               console.log('Cookie Decliner: Successfully declined all consent via TCF API');
               this.setConsentProcessed(true);

@@ -1,1 +1,94 @@
-import '@testing-library/jest-dom';\n\n// Mock browser APIs\nObject.defineProperty(window, 'chrome', {\n  writable: true,\n  value: {\n    runtime: {\n      sendMessage: jest.fn(),\n      onMessage: {\n        addListener: jest.fn()\n      }\n    }\n  }\n});\n\n// Mock browser extension APIs for Firefox\nObject.defineProperty(window, 'browser', {\n  writable: true,\n  value: {\n    runtime: {\n      sendMessage: jest.fn(),\n      onMessage: {\n        addListener: jest.fn()\n      }\n    }\n  }\n});\n\n// Mock MutationObserver with proper implementation\nglobal.MutationObserver = class MutationObserver {\n  constructor(private callback: MutationCallback) {}\n  disconnect() {}\n  observe(element: Node, initObject?: MutationObserverInit): void {}\n  takeRecords(): MutationRecord[] { return []; }\n};\n\n// Enhanced DOM mocking\nObject.defineProperty(window, 'getComputedStyle', {\n  value: jest.fn(() => ({\n    display: 'block',\n    visibility: 'visible',\n    opacity: '1'\n  }))\n});\n\n// Mock intersection observer for visibility testing\n(global as any).IntersectionObserver = class IntersectionObserver {\n  constructor(private callback: IntersectionObserverCallback) {}\n  disconnect() {}\n  observe() {}\n  unobserve() {}\n  get root() { return null; }\n  get rootMargin() { return '0px'; }\n  get thresholds() { return []; }\n  takeRecords() { return []; }\n};\n\n// Clean console for tests (Jest best practice)\nbeforeEach(() => {\n  jest.clearAllMocks();\n});\n\n// Global error handling for tests\nprocess.on('unhandledRejection', (reason, promise) => {\n  console.error('Unhandled Rejection at:', promise, 'reason:', reason);\n});\n\n// Mock performance API\nObject.defineProperty(window, 'performance', {\n  writable: true,\n  value: {\n    now: jest.fn(() => Date.now())\n  }\n});
+import '@testing-library/jest-dom';
+
+// Mock browser APIs
+Object.defineProperty(window, 'chrome', {
+  writable: true,
+  value: {
+    runtime: {
+      sendMessage: jest.fn(),
+      onMessage: {
+        addListener: jest.fn()
+      }
+    }
+  }
+});
+
+// Mock browser extension APIs for Firefox
+Object.defineProperty(window, 'browser', {
+  writable: true,
+  value: {
+    runtime: {
+      sendMessage: jest.fn(),
+      onMessage: {
+        addListener: jest.fn()
+      }
+    }
+  }
+});
+
+// Mock MutationObserver with proper implementation
+global.MutationObserver = class MutationObserver {
+  constructor(private callback: MutationCallback) {}
+  disconnect() {}
+  observe(element: Node, initObject?: MutationObserverInit): void {}
+  takeRecords(): MutationRecord[] { return []; }
+};
+
+// Enhanced DOM mocking
+Object.defineProperty(window, 'getComputedStyle', {
+  value: jest.fn((element: Element) => {
+    const htmlElement = element as HTMLElement;
+    return {
+      display: htmlElement.style?.display || 'block',
+      visibility: htmlElement.style?.visibility || 'visible',
+      opacity: htmlElement.style?.opacity || '1'
+    };
+  })
+});
+
+// Mock getBoundingClientRect for all elements
+HTMLElement.prototype.getBoundingClientRect = jest.fn(function(this: HTMLElement) {
+  const width = parseFloat(this.style.width) || 0;  // Default to 0 instead of 100
+  const height = parseFloat(this.style.height) || 0;  // Default to 0 instead of 50
+  return {
+    width,
+    height,
+    top: 0,
+    left: 0,
+    bottom: height,
+    right: width,
+    x: 0,
+    y: 0,
+    toJSON: () => ({})
+  };
+});
+
+// Mock intersection observer for visibility testing
+(global as any).IntersectionObserver = class IntersectionObserver {
+  constructor(private callback: IntersectionObserverCallback) {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  get root() { return null; }
+  get rootMargin() { return '0px'; }
+  get thresholds() { return []; }
+  takeRecords() { return []; }
+};
+
+// Clean console for tests (Jest best practice)
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+// Global error handling for tests
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Mock performance API
+Object.defineProperty(window, 'performance', {
+  writable: true,
+  value: {
+    now: jest.fn(() => Date.now())
+  }
+});
