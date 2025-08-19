@@ -1,52 +1,52 @@
 # TypeScript Best Practices Applied
 
-This document outlines the TypeScript best practices implemented in the Cookie Decliner project, following the official TypeScript documentation and recommendations.
+This document outlines the TypeScript best practices implemented in the Cookie Decliner project, following the official TypeScript documentation (typescriptlang.org) and TypeScript Handbook recommendations for version 5.8+.
 
-## 1. Enhanced tsconfig.json Configuration
+## 1. Enhanced tsconfig.json Configuration (Official TypeScript tsconfig.json Reference)
 
-### Type Checking Improvements
-- **Enhanced strict mode**: Added `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess` for stricter type checking
-- **Better error detection**: Added `noFallthroughCasesInSwitch`, `noImplicitOverride`, `noImplicitReturns`
-- **Code cleanliness**: Added `noUnusedLocals`, `noUnusedParameters` to catch unused code
-- **Safer property access**: Added `noPropertyAccessFromIndexSignature` to enforce bracket notation for index signatures
+### Type Checking Improvements (Based on typescriptlang.org/tsconfig)
+- **Enhanced strict mode**: Added `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess` for stricter type checking per TypeScript handbook
+- **Better error detection**: Added `noFallthroughCasesInSwitch`, `noImplicitOverride`, `noImplicitReturns` following TypeScript compiler options
+- **Code cleanliness**: Added `noUnusedLocals`, `noUnusedParameters` to catch unused code (TypeScript best practices)
+- **Safer property access**: Added `noPropertyAccessFromIndexSignature` to enforce bracket notation for index signatures (TypeScript v4.1+ feature)
 
-### Module Resolution
-- **Modern bundler support**: Changed `moduleResolution` from `"node"` to `"bundler"` for better bundler compatibility with esbuild
-- **JSON imports**: Added `resolveJsonModule` for importing JSON files safely
-- **Verbatim modules**: Added `verbatimModuleSyntax` for explicit import/export handling
+### Module Resolution (TypeScript Modules Reference)
+- **Modern bundler support**: Changed `moduleResolution` from `"node"` to `"bundler"` for better bundler compatibility with esbuild (TypeScript 4.7+ feature)
+- **JSON imports**: Added `resolveJsonModule` for importing JSON files safely (TypeScript module resolution)
+- **Verbatim modules**: Added `verbatimModuleSyntax` for explicit import/export handling (TypeScript 5.0+ feature)
 
-### Output Configuration
+### Output Configuration (TypeScript Compiler Options)
 - **Better debugging**: Added `declaration`, `declarationMap`, `sourceMap` for enhanced development experience
-- **Build safety**: Added `noEmitOnError` to prevent compilation with errors
+- **Build safety**: Added `noEmitOnError` to prevent compilation with errors (TypeScript emit options)
 - **Clean builds**: Added `removeComments: false` to preserve documentation in output
 
-### Interop Constraints
-- **Module safety**: Added `isolatedModules` for better transpiler compatibility
-- **Import consistency**: Added `forceConsistentCasingInFileNames` for cross-platform consistency
+### Interop Constraints (TypeScript Interop Options)
+- **Module safety**: Added `isolatedModules` for better transpiler compatibility (TypeScript compilation)
+- **Import consistency**: Added `forceConsistentCasingInFileNames` for cross-platform consistency (TypeScript compiler flags)
 
-## 2. Modern Import/Export Patterns
+## 2. Modern Import/Export Patterns (TypeScript Module System)
 
-### Type-Only Imports
+### Type-Only Imports (TypeScript 3.8+ Feature)
 ```typescript
-// ✅ Good - Type-only imports
+// ✅ Good - Type-only imports (verbatimModuleSyntax: true)
 import { type WindowWithAPIs, type TCFData } from './types';
 
 // ❌ Avoid - Mixed imports that could cause bundling issues
 import { WindowWithAPIs, TCFData, hasTCFAPI } from './types';
 ```
 
-### Explicit Module Extensions
+### Explicit Module Extensions (TypeScript Modules Documentation)
 ```typescript
-// ✅ Good - Clear module references for bundlers
+// ✅ Good - Clear module references for bundlers (moduleResolution: "bundler")
 import { DOMUtils } from './dom-utils';
 
-// ❌ Avoid - .js extensions in TypeScript files
+// ❌ Avoid - .js extensions in TypeScript files (causes bundler confusion)
 import { DOMUtils } from './dom-utils.js';
 ```
 
-## 3. Enhanced Type Safety
+## 3. Enhanced Type Safety (TypeScript Handbook Patterns)
 
-### Interface Definitions
+### Interface Definitions (TypeScript Object Types)
 ```typescript
 // ✅ Good - Comprehensive interface with readonly properties
 export interface TCFData {

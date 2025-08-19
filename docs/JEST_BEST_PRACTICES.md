@@ -1,23 +1,62 @@
-# Jest Best Practices Implementation Summary
+# Jest Best Practices Implementation
 
-This document outlines all the Jest best practices that have been implemented in the Cookie Decliner project based on the official Jest documentation and community best practices.
+Modern Jest testing setup following official Jest documentation (jestjs.io v30.0+) and TypeScript integration best practices from the TypeScript Handbook.
 
-## ✅ Configuration Best Practices
+## ✅ Modern Jest Configuration (Official jestjs.io Standards)
 
-### 1. **Modern Jest Configuration (`jest.config.js`)**
-- ✅ **Comprehensive test matching patterns** - Supports both `.test.ts` and `.spec.ts` files
-- ✅ **Coverage configuration with thresholds** - 80% minimum coverage for branches, functions, lines, and statements
-- ✅ **Enhanced coverage reporting** - Text, LCOV, HTML, and JSON summary reports
-- ✅ **Automatic mock clearing** - `clearMocks: true` and `restoreMocks: true`
-- ✅ **Verbose output** - Better error reporting and test progress
-- ✅ **Error reporting** - `errorOnDeprecated: true` for future compatibility
-
-### 2. **Test Environment Setup (`tests/setup.ts`)**
-- ✅ **Proper DOM environment** - JSDOM with enhanced window object mocking
-- ✅ **Browser API mocking** - Chrome and Firefox extension APIs
-- ✅ **Global cleanup** - `beforeEach()` for mock clearing
-- ✅ **Performance API mocking** - Mock `window.performance` for consistent timing
-- ✅ **Enhanced DOM utilities** - `getComputedStyle` and `IntersectionObserver` mocks
+### 1. **Enhanced Jest Setup (`jest.config.js`)**
+```javascript
+// Based on Jest v30.0+ official configuration reference
+export default {
+  preset: 'ts-jest/presets/default-esm',      // Modern ESM + TypeScript support
+  extensionsToTreatAsEsm: ['.ts'],            // Treat .ts files as ES modules
+  testEnvironment: 'jsdom',                   // Browser-like DOM environment
+  
+  // Test Discovery & Execution (Official Jest patterns)
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/*.test.ts',
+    '**/tests/unit/**/*.{test,spec}.ts'
+  ],
+  
+  // Coverage Configuration (Jest v30 best practices from jestjs.io)
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.ts'
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
+  
+  // Enhanced Test Reliability (Official Jest recommendations)
+  clearMocks: true,                           // Auto-clear mocks between tests
+  restoreMocks: true,                         // Auto-restore spies
+  resetMocks: false,                          // Keep mock implementations
+  errorOnDeprecated: true,                    // Catch deprecated API usage
+  
+  // Environment Setup
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  
+  // TypeScript Integration (ts-jest official configuration)
+  transform: {
+    '^.+\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: {
+        module: 'esnext',
+        target: 'es2020'
+      }
+    }]
+  }
+};
+```
 
 ## ✅ Test Structure Best Practices
 
