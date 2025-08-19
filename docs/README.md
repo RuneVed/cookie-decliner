@@ -11,9 +11,7 @@ This folder contains comprehensive documentation for the Cookie Decliner browser
 ### Development Documentation  
 - **[TypeScript Best Practices](./typescript-best-practices.md)** - TypeScript coding standards and configuration
 - **[Build System Guide](./build-system.md)** - Modern esbuild bundling and development workflow
-- **[Refactoring Summary](./refactoring-summary.md)** - History of major code improvements and changes
 - **[Testing Guide](./testing-guide.md)** - Comprehensive testing setup and best practices
-- **[Jest Best Practices](./JEST_BEST_PRACTICES.md)** - Jest implementation details and modern patterns
 
 ### Additional Resources
 - **[Project README](../README.md)** - Main project overview and quick start guide

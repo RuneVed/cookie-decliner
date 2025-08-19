@@ -101,158 +101,66 @@ console.debug('Error with selector ${selector}:', error);
 
 ## 🧪 Testing Best Practices (Jest + TypeScript)
 
-### Jest Configuration Standards (Based on Jest v30.0+ Official Documentation)
-```typescript
-// jest.config.js - Modern ESM + TypeScript setup following jestjs.io best practices
-export default {
-  preset: 'ts-jest/presets/default-esm',      // Modern ES modules + TypeScript
-  extensionsToTreatAsEsm: ['.ts'],            // Treat .ts files as ES modules  
-  testEnvironment: 'jsdom',                   // Browser-like DOM environment
-  transform: {
-    '^.+\.ts$': ['ts-jest', { useESM: true }] // Enhanced TypeScript transformation
-  },
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  
-  // Test reliability (official Jest recommendations)
-  clearMocks: true,                           // Auto-clear mocks between tests
-  restoreMocks: true,                         // Auto-restore spies
-  resetMocks: false,                          // Keep mock implementations
-  errorOnDeprecated: true,                    // Catch deprecated API usage
-  
-  // Coverage enforcement (Jest v30 configuration)
-  coverageThreshold: { 
-    global: { branches: 80, functions: 80, lines: 80, statements: 80 } 
-  },
-  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/**/*.test.ts']
-};
-```
+### Key Testing Standards
+- **ESM Support** - Use `ts-jest/presets/default-esm` preset
+- **Type Safety** - Mock with `jest.MockedFunction<T>`
+- **Test Isolation** - Use `clearMocks: true` and proper `beforeEach()` cleanup
+- **Coverage Enforcement** - 80%+ on branches, functions, lines, statements
+- **BDD Structure** - Use `describe()` and `it()` for clear test organization
 
-### Test Structure Patterns (Jest v30.0+ Best Practices)
+### Test Structure Patterns
 ```typescript
-// Use describe() and it() for BDD-style testing (official Jest recommendation)
+// Use describe() and it() for BDD-style testing
 describe('ComponentName', () => {
   beforeEach(() => {
-    // Arrange - setup mocks and DOM state
     document.body.innerHTML = '';
     jest.clearAllMocks();
   });
 
   it('does specific behavior when condition is met', () => {
-    // Arrange
+    // Arrange, Act, Assert pattern
     const element = document.createElement('button');
-    
-    // Act  
     const result = DOMUtils.processElement(element);
-    
-    // Assert
     expect(result).toBe(expectedValue);
   });
-
-  // Group related tests with nested describe blocks
-  describe('when element is visible', () => {
-    beforeEach(() => {
-      // Setup specific test conditions
-    });
-
-    it('processes visible elements correctly', () => {
-      // Test implementation
-    });
-  });
 });
-```
 
-### TypeScript Testing Patterns
-```typescript
-// Type-safe mocking with proper type guards
+// Type-safe mocking
 const mockTcfApi = jest.fn() as jest.MockedFunction<typeof window.__tcfapi>;
-(window as WindowWithAPIs).__tcfapi = mockTcfApi;
-
-// Type-only imports for test interfaces
-import { type WindowWithAPIs, type TCFData } from '../src/types';
 ```
 
-### Mock Management (`tests/setup.ts`)
-```typescript
-// Comprehensive browser API mocking
-global.chrome = { extension: { getURL: jest.fn() } };
-Element.prototype.getBoundingClientRect = jest.fn(() => ({
-  width: 100, height: 50, top: 0, left: 0, bottom: 50, right: 100
-}));
-window.getComputedStyle = jest.fn(() => ({ display: 'block', visibility: 'visible' }));
-```
+## 🔧 TypeScript Best Practices
 
-## 🔧 TypeScript Best Practices (Official TypeScript v5.8+ Standards)
-
-### Strict Configuration Standards (Official TypeScript tsconfig.json Reference)
+### Key Configuration Standards
+- **Strict Mode** - Enable all strict type checking options
+- **Module Resolution** - Use `"bundler"` for modern bundler compatibility
+- **Type Safety** - Use optional chaining (`?.`) and nullish coalescing (`??`)
+- **Import/Export** - Use type-only imports when possible
+### Type Safety Patterns
 ```typescript
-// tsconfig.json - Enhanced strict mode (typescriptlang.org/tsconfig)
-{
-  "compilerOptions": {
-    "strict": true,                             // Enable all strict type checking
-    "exactOptionalPropertyTypes": true,         // Exact optional property types  
-    "noUncheckedIndexedAccess": true,          // Check indexed access safety
-    "noImplicitReturns": true,                 // Ensure all code paths return
-    "noImplicitOverride": true,                // Require explicit override keyword
-    "noUnusedLocals": true,                    // Report unused local variables
-    "noUnusedParameters": true,                // Report unused parameters
-    "verbatimModuleSyntax": true,              // Preserve exact import/export syntax
-    "moduleResolution": "bundler",             // Modern bundler resolution
-    "forceConsistentCasingInFileNames": true,  // Cross-platform compatibility
-    "isolatedModules": true                    // Single-file transpilation safety
-  }
-}
-```
-
-### Type Safety Patterns (TypeScript Handbook Best Practices)
-```typescript
-// Type guards for runtime validation (typescriptlang.org patterns)
+// Type guards for runtime validation
 function hasTCFAPI(win: Window): win is WindowWithAPIs {
   return typeof (win as WindowWithAPIs).__tcfapi === 'function';
 }
 
-// Optional chaining with nullish coalescing for safe access
+// Optional chaining with nullish coalescing
 const text = element.textContent?.toLowerCase() ?? '';
 
-// Readonly interfaces for immutable data structures
-export interface TCFData {
-  readonly cmpStatus: string;
-  readonly eventStatus: string;
-  readonly gdprApplies?: boolean;
-}
-
-// Literal types for precise value constraints
-type Alignment = "left" | "right" | "center";
+// Literal types for precise constraints
 type ButtonState = "visible" | "hidden" | "loading";
-```
-
-### Import/Export Standards (TypeScript Module System)
-```typescript
-// Type-only imports to prevent runtime bundling (verbatimModuleSyntax)
-import { type WindowWithAPIs, type TCFData } from './types';
-
-// Explicit module references for bundler compatibility
-import { DOMUtils } from './dom-utils';
-
-// Named exports for tree-shaking optimization
-export { CookieDecliner } from './cookie-decliner';
-export type { CookieSelector, ConsentData } from './types';
 ```
 
 ## 🚨 Common Pitfalls
 
 1. **Jest ESM compatibility** - Use `extensionsToTreatAsEsm: ['.ts']` and `ts-jest/presets/default-esm`
-2. **TypeScript strict mode** - Enable all strict flags in tsconfig.json, use optional chaining everywhere
-3. **IIFE bundling** - All imports must resolve to single bundled file, no dynamic imports
+2. **TypeScript strict mode** - Enable all strict flags, use optional chaining everywhere
+3. **IIFE bundling** - All imports must resolve to single bundled file
 4. **Test isolation** - Use `clearMocks: true` and proper `beforeEach()` cleanup
-5. **Type-safe mocking** - Use `jest.MockedFunction<T>` for proper TypeScript integration
-6. **Coverage thresholds** - Maintain 80%+ coverage on branches, functions, lines, statements
-7. **Nullish coalescing** - Prefer `??` over `||` for proper null/undefined handling
-8. **Module syntax** - Use `verbatimModuleSyntax: true` for explicit import/export control
+5. **Type-safe mocking** - Use `jest.MockedFunction<T>` for TypeScript integration
+6. **Coverage thresholds** - Maintain 80%+ coverage on all metrics
 
 ## 📁 Key Files for Understanding
 - `src/content-script.ts` - Main logic flow and initialization
 - `src/api-handler.ts` - API integration patterns and error handling
 - `tests/setup.ts` - Browser API mocking and test environment
-- `package.json` scripts - Build commands and workflow integration
 - `jest.config.js` - Test configuration with coverage thresholds
