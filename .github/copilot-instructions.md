@@ -99,14 +99,34 @@ console.log('Cookie Decliner: Found TCF API immediately!');
 console.debug('Error with selector ${selector}:', error);
 ```
 
-## 🧪 Testing Best Practices (Jest + TypeScript)
+## 🧪 Jest & Testing Best Practices
 
-### Key Testing Standards
-- **ESM Support** - Use `ts-jest/presets/default-esm` preset
-- **Type Safety** - Mock with `jest.MockedFunction<T>`
-- **Test Isolation** - Use `clearMocks: true` and proper `beforeEach()` cleanup
-- **Coverage Enforcement** - 80%+ on branches, functions, lines, statements
+### Official Jest Documentation Standards (jestjs.io)
+- **ESM Support** - Use `ts-jest/presets/default-esm` preset with `extensionsToTreatAsEsm: ['.ts']`
+- **Test Environment** - Use `jsdom` for DOM testing (browser extension environment)
+- **Coverage Enforcement** - Maintain 80%+ coverage on branches, functions, lines, statements
+- **Mock Management** - Use `clearMocks: true` and proper `beforeEach()` cleanup
+- **Type-Safe Mocking** - Use `jest.MockedFunction<T>` for TypeScript integration
+
+### Jest Configuration Highlights
+```javascript
+// jest.config.js - Following official Jest recommendations
+export default {
+  preset: 'ts-jest/presets/default-esm',           // ESM + TypeScript
+  extensionsToTreatAsEsm: ['.ts'],                 // Treat .ts as ESM
+  testEnvironment: 'jsdom',                        // DOM testing
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'], // Test framework setup
+  coverageThreshold: {                             // Coverage enforcement
+    global: { branches: 80, functions: 80, lines: 80, statements: 80 }
+  }
+};
+```
+
+### Testing Standards (Jest + TypeScript Integration)
 - **BDD Structure** - Use `describe()` and `it()` for clear test organization
+- **Type Safety** - Mock with `jest.MockedFunction<typeof functionName>`
+- **Test Isolation** - Use `clearMocks: true` and proper `beforeEach()` cleanup
+- **Coverage Targets** - 80%+ on all metrics (branches, functions, lines, statements)
 
 ### Test Structure Patterns
 ```typescript
@@ -131,12 +151,10 @@ const mockTcfApi = jest.fn() as jest.MockedFunction<typeof window.__tcfapi>;
 
 ## 🔧 TypeScript Best Practices
 
-### Key Configuration Standards
-- **Strict Mode** - Enable all strict type checking options
-- **Module Resolution** - Use `"bundler"` for modern bundler compatibility
-- **Type Safety** - Use optional chaining (`?.`) and nullish coalescing (`??`)
-- **Import/Export** - Use type-only imports when possible
-### Type Safety Patterns
+### Comprehensive TypeScript Standards
+See [typescript-best-practices.md](../docs/typescript-best-practices.md) for detailed TypeScript configuration and coding standards based on official TypeScript documentation (typescriptlang.org).
+
+### Key Implementation Patterns
 ```typescript
 // Type guards for runtime validation
 function hasTCFAPI(win: Window): win is WindowWithAPIs {
@@ -146,8 +164,8 @@ function hasTCFAPI(win: Window): win is WindowWithAPIs {
 // Optional chaining with nullish coalescing
 const text = element.textContent?.toLowerCase() ?? '';
 
-// Literal types for precise constraints
-type ButtonState = "visible" | "hidden" | "loading";
+// Type-only imports (verbatimModuleSyntax: true)
+import { type WindowWithAPIs, type TCFData } from './types';
 ```
 
 ## 🚨 Common Pitfalls
