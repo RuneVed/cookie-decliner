@@ -43,7 +43,6 @@ class CookieDecliner {
           }
         }
       } catch (error) {
-        // eslint-disable-next-line no-console -- Debug logging for browser extension troubleshooting
         console.debug(`Error with selector ${selector}:`, error);
       }
     }

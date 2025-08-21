@@ -40,8 +40,9 @@ describe('Selectors Configuration', () => {
     it('includes major consent management platform selectors', () => {
       const frameworks = FRAMEWORK_SELECTORS.map(f => f.selector);
       
-      // Check for SourcePoint selectors
-      expect(frameworks.some(f => f.includes('sp_choice_type_11'))).toBe(true);
+      // Check for SourcePoint selectors (corrected)
+      expect(frameworks.some(f => f.includes('sp_choice_type_12'))).toBe(true); // Customize/reject
+      expect(frameworks.some(f => f.includes('sp_choice_type_REJECT_ALL'))).toBe(true); // Final reject
       
       // Check for OneTrust selectors  
       expect(frameworks.some(f => f.includes('ot-pc-refuse-all-handler'))).toBe(true);
@@ -75,7 +76,7 @@ describe('Selectors Configuration', () => {
       });
       
       const selectorStrings = selectors.map(s => s.selector);
-      expect(selectorStrings.some(s => s.includes('sp_choice_type_11'))).toBe(true);
+      expect(selectorStrings.some(s => s.includes('sp_choice_type_12'))).toBe(true); // Corrected SourcePoint selector
     });
 
     it('should not have duplicate selectors', () => {
