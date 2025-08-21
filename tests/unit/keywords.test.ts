@@ -17,10 +17,10 @@ describe('Keywords Configuration', () => {
       expect(COOKIE_KEYWORDS).toContain('privacy');
     });
 
-    it('includes multi-language cookie terms', () => {
+    it('includes Norwegian cookie terms', () => {
       expect(COOKIE_KEYWORDS).toContain('avvis'); // Norwegian
       expect(COOKIE_KEYWORDS).toContain('samtykke'); // Norwegian consent
-      expect(COOKIE_KEYWORDS).toContain('decline'); // English decline
+      expect(COOKIE_KEYWORDS).toContain('personvern'); // Norwegian privacy
     });
   });
 
@@ -38,9 +38,10 @@ describe('Keywords Configuration', () => {
       expect(allKeywords).toContain('consent');
       expect(allKeywords).toContain('privacy');
       
-      // Should include multi-language terms
+      // Should include Norwegian terms
       expect(allKeywords).toContain('avvis');
       expect(allKeywords).toContain('samtykke');
+      expect(allKeywords).toContain('personvern');
     });
   });
 });

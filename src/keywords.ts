@@ -15,18 +15,6 @@ export const COOKIE_CONTENT_KEYWORDS = {
   norwegian: [
     'cookie', 'samtykke', 'personvern', 'avvis', 'godta', 'tilpass',
     'cookieinnstillinger', 'persondata', 'sporingsteknologi'
-  ],
-  english: [
-    'cookie', 'consent', 'privacy', 'accept', 'decline', 'reject',
-    'manage', 'preferences', 'tracking', 'analytics'
-  ],
-  german: [
-    'cookie', 'zustimmung', 'datenschutz', 'akzeptieren', 'ablehnen',
-    'verwalten', 'einstellungen', 'verfolgung'
-  ],
-  french: [
-    'cookie', 'consentement', 'confidentialité', 'accepter', 'refuser',
-    'gérer', 'préférences', 'suivi'
   ]
 };
 

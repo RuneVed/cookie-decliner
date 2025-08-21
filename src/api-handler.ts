@@ -276,7 +276,7 @@ export class APIHandler {
     let iframeCount = 0;
     
     iframes.forEach((iframe, index) => {
-      const iframeElement = iframe as HTMLIFrameElement;
+      const iframeElement = iframe;
       
       // Check if this is a SourcePoint iframe
       if (iframeElement.id?.includes('sp_message') || 
@@ -303,7 +303,7 @@ export class APIHandler {
               const declineMessage = {
                 type: 'sp.choice',
                 choice: 11, // Reject all
-                messageId: messageId
+                messageId
               };
               
               iframeElement.contentWindow.postMessage(declineMessage, '*');
@@ -311,7 +311,7 @@ export class APIHandler {
               // Also try alternative message formats
               iframeElement.contentWindow.postMessage({
                 name: 'sp.messageChoiceSelect',
-                body: { choice: 11, messageId: messageId }
+                body: { choice: 11, messageId }
               }, '*');
             }
           } catch (error) {
