@@ -7,14 +7,17 @@ export const EXCLUDE_KEYWORDS = [
 export const COOKIE_KEYWORDS = [
   'cookie', 'consent', 'privacy', 'gdpr', 'tracking', 'analytics',
   'decline', 'reject', 'deny', 'refuse', 'avvis', 'avslå',
-  'personvern', 'samtykke', 'cookieinnstillinger', 'tilpass'
+  'personvern', 'samtykke', 'cookieinnstillinger', 'tilpass',
+  'nødvendige', 'innstillinger', 'flere'
 ];
 
 // Multi-language keywords for cookie-related content detection
 export const COOKIE_CONTENT_KEYWORDS = {
   norwegian: [
     'cookie', 'samtykke', 'personvern', 'avvis', 'godta', 'tilpass',
-    'cookieinnstillinger', 'persondata', 'sporingsteknologi'
+    'cookieinnstillinger', 'persondata', 'sporingsteknologi',
+    'nødvendige', 'innstillinger', 'flere', 'proteinfabrikken',
+    'godkjenn', 'lagre'
   ]
 };
 
