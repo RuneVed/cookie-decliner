@@ -18,6 +18,12 @@ describe('Selectors Configuration', () => {
       // Check for specific Norwegian terms
       const norwegianSelectors = norwegian!.selectors.map(s => s.selector).join(' ');
       expect(norwegianSelectors).toContain('avvis');
+      
+      // Check for Proteinfabrikken-specific selectors
+      expect(norwegianSelectors).toContain('Bare nødvendige cookies');
+      expect(norwegianSelectors).toContain('save-necessary-cookie-button');
+      expect(norwegianSelectors).toContain('Flere innstillinger');
+      expect(norwegianSelectors).toContain('deny-all-cookies');
     });
 
     it('includes English selectors with correct content', () => {
@@ -87,6 +93,35 @@ describe('Selectors Configuration', () => {
       
       // Assert
       expect(selectorStrings.length).toBe(uniqueSelectors.length);
+    });
+  });
+
+  describe('Norwegian Cookie Patterns', () => {
+    it('should include Norwegian-specific selectors', () => {
+      const allSelectors = getAllDeclineSelectors();
+      const selectorStrings = allSelectors.map(s => s.selector);
+      
+      // Check for direct decline button (preferred)
+      expect(selectorStrings).toContain('button.save-necessary-cookie-button');
+      expect(selectorStrings).toContain('button:contains("Bare nødvendige cookies")');
+      
+      // Check for two-step process (fallback)
+      expect(selectorStrings).toContain('button:contains("Flere innstillinger")');
+      expect(selectorStrings).toContain('button.deny-all-cookies');
+      expect(selectorStrings).toContain('button[data-deny-all-cookies]');
+    });
+
+    it('should prioritize direct decline over two-step process', () => {
+      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      const selectors = norwegian!.selectors;
+      
+      // Check that direct decline selectors come first
+      const directDeclineIndex = selectors.findIndex(s => 
+        s.selector.includes('save-necessary-cookie-button'));
+      const twoStepIndex = selectors.findIndex(s => 
+        s.selector.includes('Flere innstillinger'));
+      
+      expect(directDeclineIndex).toBeLessThan(twoStepIndex);
     });
   });
 });

@@ -15,6 +15,15 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
     code: 'no',
     name: 'Norwegian',
     selectors: [
+      // Direct decline options (preferred - single click)
+      { selector: 'button.save-necessary-cookie-button', description: 'Norwegian: Only necessary cookies (CSS class)' },
+      { selector: 'button:contains("Bare nødvendige cookies")', description: 'Norwegian: Only necessary cookies' },
+      
+      // Two-step process (fallback when direct decline not available)
+      { selector: 'button:contains("Flere innstillinger")', description: 'Norwegian: More settings (step 1)' },
+      { selector: 'button.deny-all-cookies', description: 'Norwegian: Reject all (CSS class, step 2)' },
+      { selector: 'button[data-deny-all-cookies]', description: 'Norwegian: Reject all (data attribute, step 2)' },
+      
       // Step 1: First-level rejection (get to settings page)
       { selector: 'button:contains("Tilpass eller avvis")', description: 'Norwegian: Customize or reject (step 1)' },
       
