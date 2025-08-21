@@ -148,8 +148,8 @@ export class APIHandler {
           console.log('Cookie Decliner: CMP is loaded, attempting to decline all');
           
           // Try to decline all purposes and vendors
-          windowWithAPI.__tcfapi?.('setAllConsentAndLegitInterest', 2, (result: any, success: boolean) => {
-            if (success && result?.success) {
+          windowWithAPI.__tcfapi?.('setAllConsentAndLegitInterest', 2, (result: TCFData, success: boolean) => {
+            if (success && result) {
               console.log('Cookie Decliner: Successfully declined all consent via TCF API');
               this.setConsentProcessed(true);
             } else {
@@ -287,9 +287,9 @@ export class APIHandler {
         console.log(`Cookie Decliner: Attempting iframe communication with SourcePoint iframe ${iframeCount}`);
         
         // Extract message ID from iframe src or id
-        const messageIdMatch = iframeElement.src?.match(/message_id=(\d+)/) || 
+        const messageIdMatch = iframeElement.src?.match(/message_id=(\d+)/) ?? 
                              iframeElement.id?.match(/\d+/);
-        const messageId = messageIdMatch?.[1] || messageIdMatch?.[0];
+        const messageId = messageIdMatch?.[1] ?? messageIdMatch?.[0];
         
         if (messageId) {
           console.log(`Cookie Decliner: Detected message ID: ${messageId}`);

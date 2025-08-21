@@ -32,8 +32,8 @@ export class DOMUtils {
     const elements = Array.from(document.querySelectorAll(baseSelector));
     
     return elements.filter(element => {
-      const text = element.textContent?.toLowerCase() || '';
-      return text.includes((textContent || '').toLowerCase());
+      const text = element.textContent?.toLowerCase() ?? '';
+      return text.includes((textContent ?? '').toLowerCase());
     });
   }
 
@@ -57,10 +57,10 @@ export class DOMUtils {
    * Validate if button is cookie-related and safe to click
    */
   static isCookieRelatedButton(element: Element): boolean {
-    const text = element.textContent?.toLowerCase() || '';
-    const className = element.className?.toLowerCase() || '';
-    const id = element.id?.toLowerCase() || '';
-    const ariaLabel = element.getAttribute('aria-label')?.toLowerCase() || '';
+    const text = element.textContent?.toLowerCase() ?? '';
+    const className = element.className?.toLowerCase() ?? '';
+    const id = element.id?.toLowerCase() ?? '';
+    const ariaLabel = element.getAttribute('aria-label')?.toLowerCase() ?? '';
     
     // Combine all text sources for analysis
     const allText = `${text} ${className} ${id} ${ariaLabel}`.toLowerCase();
@@ -171,8 +171,12 @@ export class DOMUtils {
     const iframeSet = new Set<HTMLIFrameElement>();
     
     selectors.forEach(selector => {
-      const foundIframes = Array.from(document.querySelectorAll(selector));
-      foundIframes.forEach(iframe => iframeSet.add(iframe));
+      const foundElements = Array.from(document.querySelectorAll(selector));
+      foundElements.forEach(element => {
+        if (element instanceof HTMLIFrameElement) {
+          iframeSet.add(element);
+        }
+      });
     });
     
     return Array.from(iframeSet);
