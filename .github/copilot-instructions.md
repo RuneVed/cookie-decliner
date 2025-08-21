@@ -10,6 +10,10 @@ Browser extension that automatically declines cookie consent popups using multi-
 - **Use authoritative sources**: When updating or adding documentation (including best practices, recommendations, security guidance, performance tips, or architectural rationale), use or request official, primary sources (e.g., vendor docs, standards bodies, authoritative project docs) to verify accuracy before asserting guidance.
 - **Maintain accurate metrics**: When updating the testing-guide, make sure to update the actual coverage numbers if available. If not available, ask if a coverage report should be created.
 
+### Response Efficiency Guidelines
+- **Ask before elaborating** - "Need more details?" instead of providing them automatically
+- **Use bullet points** - More efficient than paragraphs for lists
+
 ## 🏗️ Architecture Patterns
 
 ### Core Components (src/)
