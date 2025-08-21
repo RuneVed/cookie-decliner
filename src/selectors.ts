@@ -35,6 +35,12 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
 
 // Framework-specific selectors
 export const FRAMEWORK_SELECTORS: CookieSelector[] = [
+  // Cookie Information specific selectors (hjemla.no uses this)
+  { selector: 'button.coi-consent-banner__decline-button', description: 'Cookie Information: Decline button' },
+  { selector: '.coi-consent-banner__decline-button', description: 'Cookie Information: Decline element' },
+  { selector: '#coiConsentBanner button:contains("Avvis alle")', description: 'Cookie Information: Avvis alle in banner' },
+  { selector: '#coiConsentBanner [onclick*="decline"], #coiConsentBanner [onclick*="reject"]', description: 'Cookie Information: Decline/reject onclick' },
+
   // SourcePoint specific selectors - CORRECTED PRIORITY ORDER
   // Step 1: First-level selectors (initial popup - get to settings)
   { selector: 'button.sp_choice_type_12', description: 'SourcePoint: Customize/reject (step 1)' },
