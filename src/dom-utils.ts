@@ -171,7 +171,7 @@ export class DOMUtils {
     const iframeSet = new Set<HTMLIFrameElement>();
     
     selectors.forEach(selector => {
-      const foundIframes = Array.from(document.querySelectorAll(selector)) as HTMLIFrameElement[];
+      const foundIframes = Array.from(document.querySelectorAll(selector));
       foundIframes.forEach(iframe => iframeSet.add(iframe));
     });
     

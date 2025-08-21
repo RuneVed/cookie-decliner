@@ -5,7 +5,7 @@ A powerful browser extension that automatically declines cookie consent popups o
 ## 🚀 Features
 
 - **Automatic Cookie Popup Detection** - Instantly identifies and handles cookie consent banners
-- **Multi-Language Support** - Works with Norwegian, English, German, and French websites
+- **Norwegian Language Support** - Optimized for Norwegian websites and cookie consent text
 - **Universal Framework Compatibility** - Supports major consent management platforms:
   - SourcePoint CMP
   - Cookiebot
@@ -137,7 +137,7 @@ The extension uses multiple detection strategies to identify and decline cookie 
 
 1. **API Integration** - Leverages standardized APIs (TCF v2.0, SourcePoint)
 2. **DOM Analysis** - Scans for framework-specific selectors and patterns
-3. **Text Recognition** - Identifies decline buttons in multiple languages
+3. **Text Recognition** - Identifies decline buttons in Norwegian language
 4. **Context Validation** - Ensures only cookie-related buttons are clicked
 5. **Cross-Frame Communication** - Handles iframe-based consent systems
 
@@ -200,7 +200,7 @@ Enable browser developer tools and check console for detailed logs:
 
 Contributions are welcome! Areas for improvement:
 - **New framework support** - Add selectors for additional consent systems
-- **Language expansion** - Support for more languages
+- **Enhanced Norwegian support** - Improve detection for Norwegian cookie consent patterns
 - **Performance optimization** - Reduce resource usage
 - **Testing coverage** - Automated testing for various sites
 

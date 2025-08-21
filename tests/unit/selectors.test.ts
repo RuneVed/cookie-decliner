@@ -2,11 +2,11 @@ import { LANGUAGE_CONFIGS, FRAMEWORK_SELECTORS, getAllDeclineSelectors } from '.
 
 describe('Selectors Configuration', () => {
   describe('Language Configurations', () => {
-    it('has selectors for all supported languages', () => {
-      expect(LANGUAGE_CONFIGS).toHaveLength(4); // Norwegian, English, German, French
+    it('has selectors for Norwegian only', () => {
+      expect(LANGUAGE_CONFIGS).toHaveLength(1); // Norwegian only
       
       const languages = LANGUAGE_CONFIGS.map(config => config.code);
-      expect(languages).toEqual(['no', 'en', 'de', 'fr']);
+      expect(languages).toEqual(['no']);
     });
 
     it('includes Norwegian selectors with correct content', () => {
@@ -21,26 +21,18 @@ describe('Selectors Configuration', () => {
     });
 
     it('includes English selectors with correct content', () => {
-      const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
-      
-      expect(english).toBeDefined();
-      expect(english!.selectors.length).toBeGreaterThan(0);
-      
-      // Check for specific English terms (case-insensitive)
-      const englishSelectors = english!.selectors.map(s => s.selector).join(' ').toLowerCase();
-      expect(englishSelectors).toContain('decline');
-      expect(englishSelectors).toContain('reject');
+      // This test is no longer relevant as we only support Norwegian
+      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      expect(norwegian).toBeDefined();
+      expect(norwegian!.selectors.length).toBeGreaterThan(0);
     });
 
-    it('includes German and French selectors', () => {
-      const german = LANGUAGE_CONFIGS.find(config => config.code === 'de');
-      const french = LANGUAGE_CONFIGS.find(config => config.code === 'fr');
-      
-      expect(german).toBeDefined();
-      expect(french).toBeDefined();
-      
-      expect(german!.selectors.length).toBeGreaterThan(0);
-      expect(french!.selectors.length).toBeGreaterThan(0);
+    it('only supports Norwegian language', () => {
+      const supportedLanguages = LANGUAGE_CONFIGS.map(config => config.code);
+      expect(supportedLanguages).toEqual(['no']);
+      expect(supportedLanguages).not.toContain('en');
+      expect(supportedLanguages).not.toContain('de');
+      expect(supportedLanguages).not.toContain('fr');
     });
   });
 
@@ -72,8 +64,8 @@ describe('Selectors Configuration', () => {
       // Arrange & Act
       const selectors = getAllDeclineSelectors();
       
-      // Assert
-      expect(selectors.length).toBeGreaterThan(30);
+      // Assert - Now we expect fewer selectors since we only support Norwegian
+      expect(selectors.length).toBeGreaterThan(15);
       expect(Array.isArray(selectors)).toBe(true);
       
       // Check structure

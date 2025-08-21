@@ -25,41 +25,6 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       { selector: 'button:contains("Ikke tillat")', description: 'Norwegian: Don\'t allow' },
       { selector: 'button:contains("Administrer innstillinger")', description: 'Norwegian: Manage settings' }
     ]
-  },
-  {
-    code: 'en',
-    name: 'English',
-    selectors: [
-      { selector: 'button:contains("Decline all cookies")', description: 'English: Decline all cookies' },
-      { selector: 'button:contains("Reject all cookies")', description: 'English: Reject all cookies' },
-      { selector: 'button:contains("Deny all cookies")', description: 'English: Deny all cookies' },
-      { selector: 'button:contains("Decline all")', description: 'English: Decline all' },
-      { selector: 'button:contains("Reject all")', description: 'English: Reject all' },
-      { selector: 'button:contains("Deny all")', description: 'English: Deny all' },
-      { selector: 'button:contains("Essential only")', description: 'English: Essential only' },
-      { selector: 'button:contains("Necessary only")', description: 'English: Necessary only' },
-      { selector: 'button:contains("Manage preferences")', description: 'English: Manage preferences' }
-    ]
-  },
-  {
-    code: 'de',
-    name: 'German',
-    selectors: [
-      { selector: 'button:contains("Alle ablehnen")', description: 'German: Reject all' },
-      { selector: 'button:contains("Alle Cookies ablehnen")', description: 'German: Reject all cookies' },
-      { selector: 'button:contains("Nur erforderliche")', description: 'German: Only essential' },
-      { selector: 'button:contains("Einstellungen verwalten")', description: 'German: Manage settings' }
-    ]
-  },
-  {
-    code: 'fr',
-    name: 'French',
-    selectors: [
-      { selector: 'button:contains("Tout refuser")', description: 'French: Refuse all' },
-      { selector: 'button:contains("Refuser tous les cookies")', description: 'French: Refuse all cookies' },
-      { selector: 'button:contains("Essentiels uniquement")', description: 'French: Essential only' },
-      { selector: 'button:contains("Gérer les préférences")', description: 'French: Manage preferences' }
-    ]
   }
 ];
 
