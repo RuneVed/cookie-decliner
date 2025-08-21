@@ -45,7 +45,7 @@ export default tseslint.config(
       'object-shorthand': 'error',
       'prefer-template': 'error',
       'prefer-arrow-callback': 'error',
-      'no-console': 'warn',
+      'no-console': 'off', // Allow console statements for browser extension debugging
       
       // Best practices for browser extensions
       'no-eval': 'error',

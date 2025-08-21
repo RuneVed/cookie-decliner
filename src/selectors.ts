@@ -15,8 +15,13 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
     code: 'no',
     name: 'Norwegian',
     selectors: [
-      { selector: 'button:contains("Avvis alle")', description: 'Norwegian: Reject all' },
-      { selector: 'button:contains("Tilpass eller avvis")', description: 'Norwegian: Customize or reject' },
+      // Step 1: First-level rejection (get to settings page)
+      { selector: 'button:contains("Tilpass eller avvis")', description: 'Norwegian: Customize or reject (step 1)' },
+      
+      // Step 2: Final rejection (settings page)
+      { selector: 'button:contains("Avvis alle")', description: 'Norwegian: Reject all (step 2)' },
+      
+      // Alternative Norwegian rejection patterns
       { selector: 'button:contains("Avvis alle cookies")', description: 'Norwegian: Reject all cookies' },
       { selector: 'button:contains("Avslå alle cookies")', description: 'Norwegian: Decline all cookies' },
       { selector: 'button:contains("Avslå alle")', description: 'Norwegian: Decline all' },
@@ -30,14 +35,24 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
 
 // Framework-specific selectors
 export const FRAMEWORK_SELECTORS: CookieSelector[] = [
-  // SourcePoint specific selectors
+  // SourcePoint specific selectors - CORRECTED PRIORITY ORDER
+  // Step 1: First-level selectors (initial popup - get to settings)
+  { selector: 'button.sp_choice_type_12', description: 'SourcePoint: Customize/reject (step 1)' },
+  { selector: '.sp_choice_type_12', description: 'SourcePoint: Customize/reject element (step 1)' },
+  
+  // Step 2: Final rejection selectors (settings page - actual reject)
+  { selector: 'button.sp_choice_type_REJECT_ALL', description: 'SourcePoint: Reject all (step 2)' },
+  { selector: '.sp_choice_type_REJECT_ALL', description: 'SourcePoint: Reject all element (step 2)' },
+  
+  // Generic SourcePoint attribute selectors
   { selector: 'button[title*="Avvis"]', description: 'SourcePoint: Avvis button (title)' },
   { selector: 'button[aria-label*="Avvis"]', description: 'SourcePoint: Avvis button (aria-label)' },
   { selector: 'button[title*="Reject"]', description: 'SourcePoint: Reject button (title)' },
   { selector: 'button[aria-label*="Reject"]', description: 'SourcePoint: Reject button (aria-label)' },
-  { selector: '.sp_choice_type_11', description: 'SourcePoint: Reject all button' },
-  { selector: '.sp_choice_type_12', description: 'SourcePoint: Accept all button' },
-  { selector: 'button.sp_choice_type_11', description: 'SourcePoint: Reject button element' },
+  
+  // REMOVED INCORRECT SELECTORS:
+  // { selector: '.sp_choice_type_11', description: 'SourcePoint: Reject all button' }, // ❌ This is ACCEPT ALL
+  // { selector: 'button.sp_choice_type_11', description: 'SourcePoint: Reject button element' }, // ❌ This is ACCEPT ALL
   
   // Major framework selectors
   { selector: '#CybotCookiebotDialogBodyButtonDecline', description: 'Cookiebot: Decline' },
