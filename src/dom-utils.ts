@@ -87,7 +87,7 @@ export class DOMUtils {
       }
     }
     
-    console.log('Cookie Decliner: Skipping button - no cookie context detected', element);
+    console.log('Cookie Decliner: Skipping button - no cookie context detected');
     return false;
   }
 

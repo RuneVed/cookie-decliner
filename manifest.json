@@ -3,10 +3,19 @@
   "name": "Cookie Decliner",
   "version": "1.0.0",
   "description": "Automatically decline cookie consent popups",
-  "permissions": ["activeTab", "<all_urls>"],
+  "content_security_policy": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'",
+  "permissions": ["activeTab"],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "exclude_matches": [
+        "*://localhost/*",
+        "*://127.0.0.1/*",
+        "*://*.local/*"
+      ],
       "js": ["dist/content-script.js"],
       "run_at": "document_idle",
       "all_frames": true

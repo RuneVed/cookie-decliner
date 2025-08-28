@@ -436,7 +436,7 @@ describe('DOMUtils', () => {
       DOMUtils.isCookieRelatedButton(button);
       
       // Assert
-      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Skipping button - no cookie context detected', button);
+      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Skipping button - no cookie context detected');
       
       consoleSpy.mockRestore();
     });

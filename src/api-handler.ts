@@ -1,8 +1,24 @@
 // API handlers for different cookie consent management platforms
 import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI } from './types';
 
+// Secure reset mechanism using Symbol - not discoverable via property enumeration
+const SECURE_RESET_SYMBOL = Symbol('secure-reset-for-testing-only');
+
 export class APIHandler {
   private static consentProcessed = false;
+  private static lastDeclineAttempt = 0;
+  private static readonly RATE_LIMIT_MS = 2000; // Minimum 2 seconds between decline attempts
+  private static declineAttemptCount = 0;
+  private static readonly MAX_DECLINE_ATTEMPTS = 5; // Maximum attempts per page load
+
+  /**
+   * Secure reset method accessible only via Symbol key
+   * This prevents easy discovery of the reset mechanism
+   */
+  static [SECURE_RESET_SYMBOL](): void {
+    this.lastDeclineAttempt = 0;
+    this.declineAttemptCount = 0;
+  }
 
   /**
    * Check for global cookie consent APIs - MAIN ENTRY POINT
@@ -127,12 +143,49 @@ export class APIHandler {
   }
 
   /**
+   * Check if we should allow a decline attempt based on rate limiting
+   */
+  private static shouldAllowDeclineAttempt(): boolean {
+    const now = Date.now();
+    
+    // Check if we've exceeded maximum attempts
+    if (this.declineAttemptCount >= this.MAX_DECLINE_ATTEMPTS) {
+      console.log('Cookie Decliner: Maximum decline attempts reached, rate limiting active');
+      return false;
+    }
+    
+    // Check if enough time has passed since last attempt
+    if (now - this.lastDeclineAttempt < this.RATE_LIMIT_MS) {
+      console.log('Cookie Decliner: Rate limiting active, declining too frequently');
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * Record a decline attempt for rate limiting
+   */
+  private static recordDeclineAttempt(): void {
+    this.lastDeclineAttempt = Date.now();
+    this.declineAttemptCount++;
+  }
+
+  /**
    * Attempt to decline all consent via available APIs
    */
   static declineAllConsent(): void {
     if (this.consentProcessed) {
       return;
     }
+
+    // Apply rate limiting
+    if (!this.shouldAllowDeclineAttempt()) {
+      return;
+    }
+
+    // Record this attempt
+    this.recordDeclineAttempt();
 
     console.log('Cookie Decliner: Attempting to decline all consent...');
     
@@ -296,6 +349,7 @@ export class APIHandler {
         }
         
         // Try to communicate with the iframe
+        const randomDelay = 400 + Math.floor(Math.random() * 200); // 400-600ms
         setTimeout(() => {
           try {
             if (iframeElement.contentWindow) {
@@ -306,20 +360,62 @@ export class APIHandler {
                 messageId
               };
               
-              iframeElement.contentWindow.postMessage(declineMessage, '*');
+              // Get secure target origin instead of using wildcard
+              const targetOrigin = this.getIframeTargetOrigin(iframeElement);
+              
+              iframeElement.contentWindow.postMessage(declineMessage, targetOrigin);
               
               // Also try alternative message formats
               iframeElement.contentWindow.postMessage({
                 name: 'sp.messageChoiceSelect',
                 body: { choice: 11, messageId }
-              }, '*');
+              }, targetOrigin);
             }
           } catch (error) {
             console.log(`Cookie Decliner: Error communicating with iframe ${index + 1}:`, error);
           }
-        }, 500);
+        }, randomDelay);
       }
     });
+  }
+
+  /**
+   * Get secure target origin for iframe communication
+   */
+  private static getIframeTargetOrigin(iframe: HTMLIFrameElement): string {
+    // Extract origin from iframe src
+    if (iframe.src) {
+      try {
+        const iframeUrl = new URL(iframe.src);
+        const origin = iframeUrl.origin;
+        
+        // Validate against trusted domains
+        const trustedDomains = [
+          'sourcepoint.mgr.consensu.org',
+          'ccpa-notice.sp-prod.net',
+          'notice.sp-prod.net',
+          'cmp.quantcast.com',
+          'cmp.osano.com',
+          'consent.cookiebot.com',
+          'consent.trustarc.com',
+          'cdn.cookielaw.org'
+        ];
+        
+        const hostname = iframeUrl.hostname;
+        const isTrusted = trustedDomains.some(domain => 
+          hostname === domain || hostname.endsWith(`.${domain}`)
+        );
+        
+        if (isTrusted) {
+          return origin;
+        }
+      } catch {
+        // Invalid URL - fall through to default
+      }
+    }
+    
+    // Default to most common SourcePoint origin if validation fails
+    return 'https://sourcepoint.mgr.consensu.org';
   }
 
   static setConsentProcessed(processed: boolean): void {
@@ -330,3 +426,6 @@ export class APIHandler {
     return this.consentProcessed;
   }
 }
+
+// Export for testing purposes only - Symbol makes it non-enumerable
+export { SECURE_RESET_SYMBOL };

@@ -1,4 +1,4 @@
-import { APIHandler } from '../../src/api-handler';
+import { APIHandler, SECURE_RESET_SYMBOL } from '../../src/api-handler';
 import { hasTCFAPI, hasSourcePointAPI } from '../../src/types';
 
 // Mock window object with proper typing
@@ -32,6 +32,8 @@ describe('APIHandler', () => {
     
     // Reset APIHandler state
     APIHandler.setConsentProcessed(false);
+    // Use secure Symbol-based reset - no field names exposed
+    (APIHandler as any)[SECURE_RESET_SYMBOL]();
     
     // Reset mocks
     mockHasTCFAPI.mockReturnValue(false);
