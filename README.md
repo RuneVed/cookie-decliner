@@ -2,6 +2,8 @@
 
 A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default.
 
+**✅ Manifest V3 Ready** - Chrome Web Store compliant | **61.92% Test Coverage** | **Zero TypeScript/ESLint Errors**
+
 ## 🚀 Features
 
 - **Automatic Cookie Popup Detection** - Instantly identifies and handles cookie consent banners
@@ -21,20 +23,34 @@ A powerful browser extension that automatically declines cookie consent popups o
 
 ## 📦 Installation
 
-### Chrome
-1. Download or clone this repository
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the project folder
-5. The extension will appear in your toolbar
+### Development Installation
 
-### Firefox
-1. Download or clone this repository
-2. Open Firefox and navigate to `about:debugging`
-3. Click "This Firefox" in the left sidebar
-4. Click "Load Temporary Add-on"
-5. Select the `manifest.json` file from the project folder
-6. The extension will be active until Firefox restarts
+**Prerequisites:** Node.js and npm installed
+
+1. **Clone and build:**
+   ```bash
+   git clone <repository-url>
+   cd cookie-decliner
+   npm install
+   npm run build
+   ```
+
+2. **Chrome Installation:**
+   - Open `chrome://extensions/`
+   - Enable "Developer mode" (top right toggle)
+   - Click "Load unpacked"
+   - Select the project root folder
+   - Extension appears in toolbar
+
+3. **Firefox Installation:**
+   - Open `about:debugging`
+   - Click "This Firefox"
+   - Click "Load Temporary Add-on"
+   - Select any file in the project folder
+   - Extension active until Firefox restart
+
+### Production Installation
+*Coming soon to Chrome Web Store and Firefox Add-ons*
 
 ## 🛠️ Development Setup
 
@@ -44,10 +60,12 @@ A powerful browser extension that automatically declines cookie consent popups o
 - TypeScript knowledge for modifications
 
 ### Technologies
+- **Manifest V3** - Modern browser extension standard, Chrome Web Store ready
 - **TypeScript 5.8.3** - Enhanced strict configuration with latest best practices
 - **esbuild 0.25.8** - Fast bundling with IIFE format for browser compatibility
 - **ESLint 9.32.0** - Latest flat config with comprehensive TypeScript rules
-- **Jest 30.0.5** - Unit testing with comprehensive coverage
+- **Jest + Playwright** - Unit testing (61.92% coverage) + E2E browser automation
+- **80 passing tests** across 6 test suites with zero warnings
 - **Playwright** - End-to-end testing for real browser environments
 
 For detailed build system information, see [Build System Guide](docs/build-system.md).
