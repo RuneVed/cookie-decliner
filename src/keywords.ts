@@ -8,7 +8,7 @@ export const COOKIE_KEYWORDS = [
   'cookie', 'consent', 'privacy', 'gdpr', 'tracking', 'analytics',
   'decline', 'reject', 'deny', 'refuse', 'avvis', 'avslå',
   'personvern', 'samtykke', 'cookieinnstillinger', 'tilpass',
-  'nødvendige', 'innstillinger', 'flere'
+  'nødvendige', 'innstillinger', 'flere', 'complianz', 'cmplz'
 ];
 
 // Multi-language keywords for cookie-related content detection

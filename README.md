@@ -13,6 +13,7 @@ A powerful browser extension that automatically declines cookie consent popups o
   - Cookiebot
   - OneTrust
   - Usercentrics
+  - Complianz
   - TCF v2.0 API
   - Custom implementations
 - **Cross-Browser Support** - Compatible with both Chrome and Firefox

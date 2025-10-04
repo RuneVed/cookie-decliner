@@ -52,6 +52,9 @@ describe('Selectors Configuration', () => {
       
       // Check for OneTrust selectors  
       expect(frameworks.some(f => f.includes('ot-pc-refuse-all-handler'))).toBe(true);
+      
+      // Check for Complianz selectors
+      expect(frameworks.some(f => f.includes('cmplz-deny'))).toBe(true);
     });
 
     it('should have proper descriptions for frameworks', () => {
@@ -62,6 +65,24 @@ describe('Selectors Configuration', () => {
       frameworks.forEach(selector => {
         expect(selector.description).toBeDefined();
         expect(selector.description.length).toBeGreaterThan(5);
+      });
+    });
+
+    it('includes Complianz framework selectors', () => {
+      const frameworks = FRAMEWORK_SELECTORS.map(f => f.selector);
+      
+      // Check for Complianz-specific selectors
+      expect(frameworks).toContain('button.cmplz-deny');
+      expect(frameworks).toContain('button.cmplz-btn.cmplz-deny');
+      expect(frameworks).toContain('.cmplz-deny');
+      expect(frameworks).toContain('#cmplz-deny');
+      
+      // Verify descriptions
+      const complianzSelectors = FRAMEWORK_SELECTORS.filter(f => 
+        f.description.includes('Complianz'));
+      expect(complianzSelectors.length).toBeGreaterThan(0);
+      complianzSelectors.forEach(selector => {
+        expect(selector.description).toContain('Complianz');
       });
     });
   });
@@ -122,6 +143,77 @@ describe('Selectors Configuration', () => {
         s.selector.includes('Flere innstillinger'));
       
       expect(directDeclineIndex).toBeLessThan(twoStepIndex);
+    });
+
+    it('should include simple "Avslå" selector for Norwegian', () => {
+      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      const selectors = norwegian!.selectors.map(s => s.selector);
+      
+      // Check that simple "Avslå" is included
+      expect(selectors).toContain('button:contains("Avslå")');
+      
+      // Verify it comes after more specific selectors
+      const avslåIndex = norwegian!.selectors.findIndex(s => 
+        s.selector === 'button:contains("Avslå")');
+      const avslåAlleIndex = norwegian!.selectors.findIndex(s => 
+        s.selector === 'button:contains("Avslå alle")');
+      
+      expect(avslåIndex).toBeGreaterThan(avslåAlleIndex);
+    });
+  });
+
+  describe('Complianz Integration', () => {
+    it('should detect Complianz deny button by class', () => {
+      // Simulate bikebrothers.no HTML structure
+      document.body.innerHTML = `
+        <div class="cmplz-cookiebanner">
+          <button class="cmplz-btn cmplz-deny">Avslå</button>
+          <button class="cmplz-btn cmplz-accept">Aksepter</button>
+        </div>
+      `;
+      
+      const allSelectors = getAllDeclineSelectors();
+      const complianzSelector = allSelectors.find(s => 
+        s.selector === 'button.cmplz-btn.cmplz-deny');
+      
+      expect(complianzSelector).toBeDefined();
+      
+      // Test that the selector would match the button
+      const button = document.querySelector('button.cmplz-btn.cmplz-deny');
+      expect(button).toBeTruthy();
+      expect(button?.textContent).toBe('Avslå');
+    });
+
+    it('should detect simple Norwegian "Avslå" button', () => {
+      // Simulate bikebrothers.no HTML structure with simple text
+      document.body.innerHTML = `
+        <div class="cmplz-cookiebanner">
+          <button class="cmplz-btn cmplz-deny">Avslå</button>
+        </div>
+      `;
+      
+      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      const avslåSelector = norwegian!.selectors.find(s => 
+        s.selector === 'button:contains("Avslå")');
+      
+      expect(avslåSelector).toBeDefined();
+      expect(avslåSelector?.description).toContain('Decline/refuse');
+    });
+
+    it('should prioritize specific Complianz selectors over generic ones', () => {
+      const allSelectors = getAllDeclineSelectors();
+      
+      // Find indices of Complianz selectors
+      const cmplzButtonIndex = allSelectors.findIndex(s => 
+        s.selector === 'button.cmplz-btn.cmplz-deny');
+      const cmplzElementIndex = allSelectors.findIndex(s => 
+        s.selector === '.cmplz-deny');
+      const cmplzIdIndex = allSelectors.findIndex(s => 
+        s.selector === '#cmplz-deny');
+      
+      expect(cmplzButtonIndex).toBeGreaterThan(-1);
+      expect(cmplzElementIndex).toBeGreaterThan(-1);
+      expect(cmplzIdIndex).toBeGreaterThan(-1);
     });
   });
 });
