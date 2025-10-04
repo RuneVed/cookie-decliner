@@ -34,6 +34,7 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       { selector: 'button:contains("Avvis alle cookies")', description: 'Norwegian: Reject all cookies' },
       { selector: 'button:contains("Avslå alle cookies")', description: 'Norwegian: Decline all cookies' },
       { selector: 'button:contains("Avslå alle")', description: 'Norwegian: Decline all' },
+      { selector: 'button:contains("Avslå")', description: 'Norwegian: Decline/refuse (simple)' },
       { selector: 'button:contains("Nødvendige kun")', description: 'Norwegian: Essential only' },
       { selector: 'button:contains("Kun nødvendige")', description: 'Norwegian: Only essential' },
       { selector: 'button:contains("Ikke tillat")', description: 'Norwegian: Don\'t allow' },
@@ -49,6 +50,12 @@ export const FRAMEWORK_SELECTORS: CookieSelector[] = [
   { selector: '.coi-consent-banner__decline-button', description: 'Cookie Information: Decline element' },
   { selector: '#coiConsentBanner button:contains("Avvis alle")', description: 'Cookie Information: Avvis alle in banner' },
   { selector: '#coiConsentBanner [onclick*="decline"], #coiConsentBanner [onclick*="reject"]', description: 'Cookie Information: Decline/reject onclick' },
+
+  // Complianz cookie consent manager (cmplz)
+  { selector: 'button.cmplz-deny', description: 'Complianz: Deny button' },
+  { selector: 'button.cmplz-btn.cmplz-deny', description: 'Complianz: Deny button (full class)' },
+  { selector: '.cmplz-deny', description: 'Complianz: Deny element' },
+  { selector: '#cmplz-deny', description: 'Complianz: Deny by ID' },
 
   // SourcePoint specific selectors - CORRECTED PRIORITY ORDER
   // Step 1: First-level selectors (initial popup - get to settings)

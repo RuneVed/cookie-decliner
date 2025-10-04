@@ -22,6 +22,11 @@ describe('Keywords Configuration', () => {
       expect(COOKIE_KEYWORDS).toContain('samtykke'); // Norwegian consent
       expect(COOKIE_KEYWORDS).toContain('personvern'); // Norwegian privacy
     });
+
+    it('includes Complianz framework keywords', () => {
+      expect(COOKIE_KEYWORDS).toContain('complianz');
+      expect(COOKIE_KEYWORDS).toContain('cmplz');
+    });
   });
 
   describe('Combined Keywords', () => {

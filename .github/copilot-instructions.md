@@ -3,8 +3,8 @@
 ## 🎯 Project Overview
 Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint), DOM analysis, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
 
-### 📊 Current Status (September 2025)
-- ✅ **61.92% test coverage** with 80 passing tests across 6 test suites
+### 📊 Current Status (October 2025)
+- ✅ **61.92% test coverage** with 86 passing tests across 6 test suites
 - ✅ **Manifest V3** compliance for Chrome Web Store submission
 - ✅ **Production-ready** build system with esbuild bundling
 - ✅ **Zero TypeScript/ESLint errors** with strict configuration
@@ -97,7 +97,7 @@ static isElementVisible(element: Element): boolean {
 
 ### Selector Organization
 Selectors grouped by framework and language in `selectors.ts`:
-- **Framework-specific**: SourcePoint, Cookiebot, OneTrust, Usercentrics
+- **Framework-specific**: SourcePoint, Cookiebot, OneTrust, Usercentrics, Complianz
 - **Language-specific**: Norwegian, English, German, French
 - **Text-based**: Custom `:contains()` pseudo-selector implementation
 
