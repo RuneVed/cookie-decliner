@@ -34,6 +34,15 @@ class CookieDecliner {
       return true;
     }
     
+    // First, try checkbox-based consent (e.g., MaxGaming)
+    // This handles cases where you need to uncheck optional cookies before saving
+    if (DOMUtils.handleCheckboxConsent()) {
+      console.log('Cookie Decliner: Successfully handled checkbox-based consent');
+      this.markConsentProcessed();
+      return true;
+    }
+    
+    // Then try standard decline button clicking
     for (const { selector } of this.declineSelectors) {
       try {
         const elements = DOMUtils.findElementsBySelector(selector);

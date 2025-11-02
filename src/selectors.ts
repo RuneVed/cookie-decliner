@@ -18,6 +18,7 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       // Direct decline options (preferred - single click)
       { selector: 'button.save-necessary-cookie-button', description: 'Norwegian: Only necessary cookies (CSS class)' },
       { selector: 'button:contains("Bare nødvendige cookies")', description: 'Norwegian: Only necessary cookies' },
+      { selector: 'button:contains("Bare nødvendige")', description: 'Norwegian: Only necessary' },
       
       // Two-step process (fallback when direct decline not available)
       { selector: 'button:contains("Flere innstillinger")', description: 'Norwegian: More settings (step 1)' },
@@ -38,7 +39,12 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       { selector: 'button:contains("Nødvendige kun")', description: 'Norwegian: Essential only' },
       { selector: 'button:contains("Kun nødvendige")', description: 'Norwegian: Only essential' },
       { selector: 'button:contains("Ikke tillat")', description: 'Norwegian: Don\'t allow' },
-      { selector: 'button:contains("Administrer innstillinger")', description: 'Norwegian: Manage settings' }
+      { selector: 'button:contains("Administrer innstillinger")', description: 'Norwegian: Manage settings' },
+      
+      // Checkbox-based consent (MaxGaming pattern)
+      { selector: 'button:contains("Lagre & lukk")', description: 'Norwegian: Save & close (after unchecking options)' },
+      { selector: 'div[id*="cookie_consent_manager_confirm"]', description: 'Norwegian: Cookie manager confirm button' },
+      { selector: 'button:contains("Lagre innstillinger")', description: 'Norwegian: Save settings' }
     ]
   }
 ];

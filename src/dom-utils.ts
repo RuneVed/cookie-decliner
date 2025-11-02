@@ -157,6 +157,94 @@ export class DOMUtils {
   }
 
   /**
+   * Handle checkbox-based cookie consent (e.g., MaxGaming)
+   * Unchecks all optional checkboxes except those marked as "necessary"
+   * Returns true if checkboxes were processed and save button was clicked
+   */
+  static handleCheckboxConsent(): boolean {
+    try {
+      // Find all checkboxes in cookie consent forms
+      const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
+      
+      // Filter for checkboxes within cookie consent context
+      const cookieCheckboxes = checkboxes.filter(checkbox => {
+        if (!(checkbox instanceof HTMLInputElement)) return false;
+        
+        // Skip if already disabled (like "Nødvendige" - necessary cookies)
+        if (checkbox.disabled) return false;
+        
+        // Check parent context for cookie-related content
+        const parent = checkbox.closest('div[id*="cookie"], div[class*="cookie"], div[id*="consent"], div[class*="consent"]');
+        if (!parent) return false;
+        
+        // Get associated label text
+        const label = checkbox.parentElement?.textContent?.toLowerCase() ?? '';
+        
+        // Skip if it's the "necessary" checkbox (can't uncheck)
+        if (label.includes('nødvendige') || label.includes('necessary') || label.includes('essential')) {
+          return false;
+        }
+        
+        // Include if it's for analytics, marketing, or preferences
+        const isOptionalCategory = label.includes('analyse') || 
+                                  label.includes('statistikk') ||
+                                  label.includes('markedsføring') ||
+                                  label.includes('marketing') ||
+                                  label.includes('advertising') ||
+                                  label.includes('preferanser') ||
+                                  label.includes('preferences');
+        
+        return isOptionalCategory;
+      });
+      
+      if (cookieCheckboxes.length === 0) {
+        return false;
+      }
+      
+      // Uncheck all optional checkboxes
+      let uncheckedCount = 0;
+      cookieCheckboxes.forEach(checkbox => {
+        if (checkbox instanceof HTMLInputElement && checkbox.checked) {
+          checkbox.checked = false;
+          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          uncheckedCount++;
+        }
+      });
+      
+      if (uncheckedCount > 0) {
+        console.log(`Cookie Decliner: Unchecked ${uncheckedCount} optional cookie checkboxes`);
+        
+        // Find and click the save button (e.g., "Lagre & lukk")
+        const saveButtonSelectors = [
+          'button:contains("Lagre & lukk")',
+          'button:contains("Lagre")',
+          'div[id*="cookie_consent_manager_confirm"]',
+          'button:contains("Save & close")',
+          'button:contains("Save settings")',
+          'button:contains("Bekreft valg")',
+          'button:contains("Confirm choices")'
+        ];
+        
+        for (const selector of saveButtonSelectors) {
+          const buttons = this.findElementsBySelector(selector);
+          for (const button of buttons) {
+            if (this.isElementVisible(button)) {
+              console.log('Cookie Decliner: Clicking save button after unchecking optional cookies');
+              this.clickElement(button);
+              return true;
+            }
+          }
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.debug('Error handling checkbox consent:', error);
+      return false;
+    }
+  }
+
+  /**
    * Find SourcePoint-related iframes
    */
   static findSourcePointIframes(): HTMLIFrameElement[] {

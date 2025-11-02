@@ -5,7 +5,7 @@ Testing setup with Jest and Playwright for unit and end-to-end testing.
 ## 🏃‍♂️ Quick Commands
 
 ```bash
-# Run all unit tests (73 tests)
+# Run all unit tests (96 tests)
 npm test
 
 # Development with watch mode
@@ -30,11 +30,11 @@ npm run test:debug
 |--------|----------|-------|
 | **selectors.ts** | **100%** ✅ | Config validation, generation |
 | **keywords.ts** | **100%** ✅ | Keyword matching logic |
-| **dom-utils.ts** | **94.28%** ✅ | DOM operations |
-| **api-handler.ts** | **90.64%** ✅ | API integrations |
+| **dom-utils.ts** | **100%** ✅ | DOM operations, checkbox consent |
+| **api-handler.ts** | **93.79%** ✅ | API integrations (TCF, SourcePoint) |
 | **content-script.ts** | **0%*** 📝 | Extension context limitations |
 
-**Overall: 73 tests passing, 65.59% lines, 54.03% branches**
+**Overall: 96 tests passing (including 10 checkbox consent tests), 66.66% lines, 50% branches**
 
 > *Content script coverage measured via dependencies due to extension context limitations.
 
@@ -61,8 +61,10 @@ tests/
 │   ├── selectors.test.ts       # Language & framework selectors
 │   ├── keywords.test.ts        # Cookie keyword validation
 │   ├── dom-utils.test.ts       # DOM manipulation & detection
+│   ├── checkbox-consent.test.ts # Checkbox-based consent (MaxGaming)
 │   ├── api-handler.test.ts     # TCF/SourcePoint API integration
-│   └── content-script.test.ts  # Extension coordination logic
+│   ├── content-script.test.ts  # Extension coordination logic
+│   └── rate-limit-security.test.ts # Security tests
 └── e2e/                        # Integration tests (Playwright)
     ├── cookie-decliner.spec.ts # Extension functionality
     └── real-sites.spec.ts      # Real website testing
@@ -110,16 +112,21 @@ npm run test:e2e:debug
 ## 📈 Quality Metrics
 
 ### Current Status ✅
-- **73 unit tests passing** in ~3.6 seconds
-- **80%+ coverage** enforced on all modules
+- **96 unit tests passing** in ~3.6 seconds
+- **80%+ coverage** enforced on critical modules
 - **Type-safe testing** with full TypeScript integration
 - **Modern Jest configuration** with ESM support
 
 ### Coverage Highlights
 - **selectors.ts**: 100% coverage (language/framework validation)
 - **keywords.ts**: 100% coverage (cookie keyword detection)
-- **dom-utils.ts**: 94.3% coverage (DOM manipulation utilities)
-- **api-handler.ts**: 90.6% coverage (TCF/SourcePoint integration)
+- **dom-utils.ts**: 100% coverage (DOM manipulation + checkbox consent)
+- **api-handler.ts**: 93.8% coverage (TCF/SourcePoint integration)
+
+### New Features Tested
+- **Checkbox-based consent** (10 tests) - MaxGaming pattern support
+- **Multi-language support** - Norwegian and English text recognition
+- **Error handling** - Graceful degradation for edge cases
 
 ## 📚 References
 

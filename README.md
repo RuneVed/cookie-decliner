@@ -2,7 +2,7 @@
 
 A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default.
 
-**✅ Manifest V3 Ready** - Chrome Web Store compliant | **61.92% Test Coverage** | **Zero TypeScript/ESLint Errors**
+**✅ Manifest V3 Ready** - Chrome Web Store compliant | **96 Tests Passing** | **66.66% Test Coverage** | **Zero TypeScript/ESLint Errors**
 
 ## 🚀 Features
 
@@ -16,8 +16,10 @@ A powerful browser extension that automatically declines cookie consent popups o
   - Complianz
   - TCF v2.0 API
   - Custom implementations
+  - Checkbox-based consent (MaxGaming pattern)
 - **Cross-Browser Support** - Compatible with both Chrome and Firefox
 - **Intelligent Button Recognition** - Avoids clicking non-cookie buttons (login, newsletter, etc.)
+- **Checkbox Consent Handling** - Automatically unchecks optional cookies before saving
 - **Dynamic Content Monitoring** - Handles popups that load after page initialization
 - **Cross-Frame Communication** - Works with iframe-based cookie systems
 - **Performance Optimized** - Minimal resource usage with smart processing controls

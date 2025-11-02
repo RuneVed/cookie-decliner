@@ -1,18 +1,12 @@
 # Cookie Decliner Extension - AI Coding Agent Instructions
 
 ## 🎯 Project Overview
-Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint), DOM analysis, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
-
-### 📊 Current Status (October 2025)
-- ✅ **61.92% test coverage** with 86 passing tests across 6 test suites
-- ✅ **Manifest V3** compliance for Chrome Web Store submission
-- ✅ **Production-ready** build system with esbuild bundling
-- ✅ **Zero TypeScript/ESLint errors** with strict configuration
+Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint), DOM analysis, checkbox-based consent handling, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
 
 ## 📋 Development Guidelines
 
 ### Core Principles
-- **Keep it simple**: Prefer the smallest change or solution that clearly solves the problem. Avoid premature abstraction, unnecessary patterns, or speculative features. Do not overengineer code or documentation.
+- **Keep it simple**: Prefer the smallest change or solution that clearly solves the problem. Avoid premature abstraction, unnecessary patterns, or speculative features. Do not overengineer code or documentation. Make sure not to add too many tests for trivial code.
 - **Use authoritative sources**: When updating or adding documentation (including best practices, recommendations, security guidance, performance tips, or architectural rationale), use or request official, primary sources (e.g., vendor docs, standards bodies, authoritative project docs) to verify accuracy before asserting guidance.
 - **Maintain accurate metrics**: When updating the testing-guide, make sure to update the actual coverage numbers if available. If not available, ask if a coverage report should be created.
 
@@ -25,7 +19,7 @@ Browser extension that automatically declines cookie consent popups using multi-
 ### Core Components (src/)
 - **content-script.ts** - Main orchestrator with MutationObserver for dynamic content
 - **api-handler.ts** - Cookie consent API integration (TCF, SourcePoint CMP)
-- **dom-utils.ts** - DOM manipulation with visibility/context validation
+- **dom-utils.ts** - DOM manipulation with visibility/context validation + checkbox consent handling
 - **selectors.ts** - Multi-language button selectors organized by framework
 - **keywords.ts** - Text validation (COOKIE_KEYWORDS vs EXCLUDE_KEYWORDS)
 - **types.ts** - TypeScript interfaces for window APIs and consent data
@@ -46,6 +40,7 @@ class CookieDecliner {
 ```
 
 ### Critical Integration Points
+- **Checkbox-based consent** - Uncheck optional cookies (analytics, marketing) before saving (MaxGaming pattern)
 - **Cross-frame communication** - PostMessage API for iframe-based consent systems
 - **API polling** - Exponential backoff for late-loading consent frameworks
 - **DOM observation** - MutationObserver with performance throttling
@@ -64,16 +59,17 @@ npm run prebuild     # ESLint with --max-warnings 0 (strict)
 
 ### Testing Strategy (Jest + Playwright)
 ```bash
-npm test                # Unit tests only
-npm run test:coverage   # Coverage report (80%+ target)
+npm test                # Unit tests only (96 tests)
+npm run test:coverage   # Coverage report (66.66% overall, 100% dom-utils)
 npm run test:all        # Unit + E2E tests
 npm run test:e2e        # Playwright browser automation
 ```
 
 **Testing Philosophy**: 
-- Unit tests for logic validation (dom-utils, api-handler, selectors)
+- Unit tests for logic validation (dom-utils, api-handler, selectors, checkbox consent)
 - E2E tests simplified to structure validation (not full site testing)
 - Mock browser APIs in `tests/setup.ts` with getBoundingClientRect
+- Comprehensive checkbox consent tests (10 tests covering MaxGaming pattern)
 
 ## 🔧 Code Conventions
 
@@ -185,10 +181,13 @@ import { type WindowWithAPIs, type TCFData } from './types';
 3. **IIFE bundling** - All imports must resolve to single bundled file
 4. **Test isolation** - Use `clearMocks: true` and proper `beforeEach()` cleanup
 5. **Type-safe mocking** - Use `jest.MockedFunction<T>` for TypeScript integration
-6. **Coverage thresholds** - Maintain 80%+ coverage on all metrics
+6. **Element visibility** - Test elements need explicit width/height for `getBoundingClientRect` mock
+7. **Coverage thresholds** - Maintain 80%+ coverage on critical modules
 
 ## 📁 Key Files for Understanding
 - `src/content-script.ts` - Main logic flow and initialization
+- `src/dom-utils.ts` - DOM manipulation and checkbox consent handling
 - `src/api-handler.ts` - API integration patterns and error handling
+- `tests/unit/checkbox-consent.test.ts` - Checkbox consent pattern tests
 - `tests/setup.ts` - Browser API mocking and test environment
 - `jest.config.js` - Test configuration with coverage thresholds

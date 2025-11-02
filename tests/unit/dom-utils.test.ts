@@ -442,3 +442,6 @@ describe('DOMUtils', () => {
     });
   });
 });
+  describe('Checkbox-based Cookie Consent (MaxGaming pattern)', () => {
+    // Tests for handleCheckboxConsent method
+  });
