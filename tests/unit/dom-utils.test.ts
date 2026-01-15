@@ -286,116 +286,6 @@ describe('DOMUtils', () => {
     });
   });
 
-  describe('SourcePoint Iframe Detection', () => {
-    it('should find SourcePoint iframes by id pattern', () => {
-      // Arrange
-      const iframe1 = document.createElement('iframe');
-      iframe1.id = 'sp_message_iframe_12345';
-      
-      const iframe2 = document.createElement('iframe');
-      iframe2.id = 'sp_message_container';
-      
-      const regularIframe = document.createElement('iframe');
-      regularIframe.id = 'regular_iframe';
-      
-      document.body.appendChild(iframe1);
-      document.body.appendChild(iframe2);
-      document.body.appendChild(regularIframe);
-      
-      // Act
-      const sourcePointIframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      expect(sourcePointIframes).toHaveLength(2);
-      expect(sourcePointIframes).toContain(iframe1);
-      expect(sourcePointIframes).toContain(iframe2);
-      expect(sourcePointIframes).not.toContain(regularIframe);
-    });
-
-    it('should find SourcePoint iframes by src pattern', () => {
-      // Arrange
-      const sourcePointIframe = document.createElement('iframe');
-      sourcePointIframe.src = 'https://cdn.sourcepoint.io/cmp/12345';
-      
-      const cmpIframe = document.createElement('iframe');
-      cmpIframe.src = 'https://example.com/cmp/consent';
-      
-      const regularIframe = document.createElement('iframe');
-      regularIframe.src = 'https://example.com/regular';
-      
-      document.body.appendChild(sourcePointIframe);
-      document.body.appendChild(cmpIframe);
-      document.body.appendChild(regularIframe);
-      
-      // Act
-      const sourcePointIframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      // sourcePointIframe matches 2 selectors but should only appear once (deduplicated)
-      // cmpIframe matches 1 selector
-      expect(sourcePointIframes).toHaveLength(2);
-      expect(sourcePointIframes).toContain(sourcePointIframe);
-      expect(sourcePointIframes).toContain(cmpIframe);
-      expect(sourcePointIframes).not.toContain(regularIframe);
-    });
-
-    it('should find SourcePoint iframes by name pattern', () => {
-      // Arrange
-      const spIframe = document.createElement('iframe');
-      spIframe.name = 'sp_consent_frame';
-      
-      const regularIframe = document.createElement('iframe');
-      regularIframe.name = 'regular_frame';
-      
-      document.body.appendChild(spIframe);
-      document.body.appendChild(regularIframe);
-      
-      // Act
-      const sourcePointIframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      expect(sourcePointIframes).toHaveLength(1);
-      expect(sourcePointIframes).toContain(spIframe);
-      expect(sourcePointIframes).not.toContain(regularIframe);
-    });
-
-    it('should return empty array when no SourcePoint iframes exist', () => {
-      // Arrange
-      const regularIframe1 = document.createElement('iframe');
-      regularIframe1.src = 'https://example.com/video';
-      
-      const regularIframe2 = document.createElement('iframe');
-      regularIframe2.id = 'video_player';
-      
-      document.body.appendChild(regularIframe1);
-      document.body.appendChild(regularIframe2);
-      
-      // Act
-      const sourcePointIframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      expect(sourcePointIframes).toHaveLength(0);
-    });
-
-    it('should handle multiple matching patterns on same iframe', () => {
-      // Arrange
-      const multiMatchIframe = document.createElement('iframe');
-      multiMatchIframe.id = 'sp_message_12345';
-      multiMatchIframe.src = 'https://cdn.sourcepoint.io/consent';
-      multiMatchIframe.name = 'sp_frame';
-      
-      document.body.appendChild(multiMatchIframe);
-      
-      // Act
-      const sourcePointIframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      // This iframe matches 3 selectors but should only be returned once (deduplicated)
-      expect(sourcePointIframes).toHaveLength(1);
-      expect(sourcePointIframes[0]).toBe(multiMatchIframe);
-    });
-  });
-
   describe('Text Selector Edge Cases', () => {
     it('should handle :contains() selector with default base selector', () => {
       // Arrange
@@ -426,22 +316,70 @@ describe('DOMUtils', () => {
       expect(DOMUtils.isCookieRelatedButton(button)).toBe(true);
     });
 
-    it('should log when button has no cookie context', () => {
+    it('should return false when button has no cookie context', () => {
       // Arrange
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       const button = document.createElement('button');
       button.textContent = 'Generic button';
       
-      // Act
-      DOMUtils.isCookieRelatedButton(button);
+      // Act & Assert
+      expect(DOMUtils.isCookieRelatedButton(button)).toBe(false);
+    });
+  });
+
+  describe('Ving.no Cookie Popup Pattern', () => {
+    it('should detect Ving.no "Avvis alle" button with aria-label', () => {
+      // Arrange - Recreate Ving.no HTML structure
+      const container = document.createElement('div');
+      container.className = 'style__ConsentModalContainer-sc-1ysvlng-0 jilDBk';
+      container.id = 'idun-consent-modal__content';
+      
+      const heading = document.createElement('h3');
+      heading.textContent = 'Ving bruker informasjonskapsler (cookies) for å gi deg en bedre og mer relevant opplevelse';
+      
+      const buttonContainer = document.createElement('div');
+      buttonContainer.id = 'cookie-button-container';
+      
+      const rejectButton = document.createElement('button');
+      rejectButton.type = 'button';
+      rejectButton.setAttribute('aria-label', 'Avvis alle');
+      rejectButton.className = 'Linkstyle__Link-sc-1d1h248-0 kgBoLD';
+      
+      const span = document.createElement('span');
+      span.textContent = 'Avvis alle';
+      rejectButton.appendChild(span);
+      
+      buttonContainer.appendChild(rejectButton);
+      container.appendChild(heading);
+      container.appendChild(buttonContainer);
+      document.body.appendChild(container);
+      
+      // Act - Test selector detection
+      const ariaLabelElements = DOMUtils.findElementsBySelector('button[aria-label="Avvis alle"]');
       
       // Assert
-      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Skipping button - no cookie context detected');
+      expect(ariaLabelElements).toHaveLength(1);
+      expect(ariaLabelElements[0]).toBe(rejectButton);
+      expect(DOMUtils.isCookieRelatedButton(rejectButton)).toBe(true);
+    });
+
+    it('should detect Ving.no button with partial aria-label match', () => {
+      // Arrange
+      const button = document.createElement('button');
+      button.setAttribute('aria-label', 'Avvis alle cookies');
+      button.textContent = 'Avvis alle';
       
-      consoleSpy.mockRestore();
+      const cookieContainer = document.createElement('div');
+      cookieContainer.id = 'idun-consent-modal';
+      cookieContainer.appendChild(button);
+      document.body.appendChild(cookieContainer);
+      
+      // Act
+      const elements = DOMUtils.findElementsBySelector('button[aria-label*="Avvis alle"]');
+      
+      // Assert
+      expect(elements).toHaveLength(1);
+      expect(elements[0]).toBe(button);
+      expect(DOMUtils.isCookieRelatedButton(button)).toBe(true);
     });
   });
 });
-  describe('Checkbox-based Cookie Consent (MaxGaming pattern)', () => {
-    // Tests for handleCheckboxConsent method
-  });

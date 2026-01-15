@@ -28,10 +28,12 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       // Step 1: First-level rejection (get to settings page)
       { selector: 'button:contains("Tilpass eller avvis")', description: 'Norwegian: Customize or reject (step 1)' },
       
-      // Step 2: Final rejection (settings page)
-      { selector: 'button:contains("Avvis alle")', description: 'Norwegian: Reject all (step 2)' },
+      // Step 2: Final rejection (settings page) - aria-label is more reliable than text content
+      { selector: 'button[aria-label="Avvis alle"]', description: 'Norwegian: Reject all (aria-label, step 2)' },
+      { selector: 'button:contains("Avvis alle")', description: 'Norwegian: Reject all (text, step 2)' },
       
       // Alternative Norwegian rejection patterns
+      { selector: 'button[aria-label*="Avvis alle"]', description: 'Norwegian: Reject all (aria-label partial)' },
       { selector: 'button:contains("Avvis alle cookies")', description: 'Norwegian: Reject all cookies' },
       { selector: 'button:contains("Avslå alle cookies")', description: 'Norwegian: Decline all cookies' },
       { selector: 'button:contains("Avslå alle")', description: 'Norwegian: Decline all' },

@@ -30,7 +30,6 @@ describe('Content Script Dependencies', () => {
     mockDOMUtils.isCookieRelatedButton = jest.fn().mockReturnValue(true);
     mockDOMUtils.clickElement = jest.fn();
     mockDOMUtils.hasCookieContent = jest.fn().mockReturnValue(false);
-    mockDOMUtils.findSourcePointIframes = jest.fn().mockReturnValue([]);
     
     // Mock ALL APIHandler methods
     mockAPIHandler.isConsentProcessed = jest.fn().mockReturnValue(false);
@@ -129,22 +128,6 @@ describe('Content Script Dependencies', () => {
       expect(mockDOMUtils.hasCookieContent).toHaveBeenCalledWith([cookieDiv]);
     });
 
-    it('should work with SourcePoint iframe detection', () => {
-      // Arrange
-      const iframe = document.createElement('iframe');
-      iframe.src = 'https://sourcepoint.com/privacy';
-      document.body.appendChild(iframe);
-      
-      mockDOMUtils.findSourcePointIframes.mockReturnValue([iframe as HTMLIFrameElement]);
-      
-      // Act
-      const iframes = DOMUtils.findSourcePointIframes();
-      
-      // Assert
-      expect(iframes).toContain(iframe);
-      expect(mockDOMUtils.findSourcePointIframes).toHaveBeenCalled();
-    });
-
     it('should work with consent processing', () => {
       // Arrange & Act
       // Test consent not processed scenario
@@ -172,7 +155,6 @@ describe('Content Script Dependencies', () => {
       
       // Test DOM utils module  
       DOMUtils.findElementsBySelector('test');
-      DOMUtils.findSourcePointIframes();
       
       // Test API handler module
       expect(() => APIHandler.handleTCFAPI()).not.toThrow();
@@ -182,7 +164,6 @@ describe('Content Script Dependencies', () => {
       // Assert - Verify the functions were called
       expect(mockGetAllDeclineSelectors).toHaveBeenCalled();
       expect(mockDOMUtils.findElementsBySelector).toHaveBeenCalled();
-      expect(mockDOMUtils.findSourcePointIframes).toHaveBeenCalled();
       expect(mockAPIHandler.handleTCFAPI).toHaveBeenCalled();
       expect(mockAPIHandler.handleSourcePointAPI).toHaveBeenCalled();
       expect(mockAPIHandler.checkForGlobalAPIs).toHaveBeenCalled();

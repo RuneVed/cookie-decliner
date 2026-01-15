@@ -27,6 +27,16 @@ describe('Keywords Configuration', () => {
       expect(COOKIE_KEYWORDS).toContain('complianz');
       expect(COOKIE_KEYWORDS).toContain('cmplz');
     });
+
+    it('includes Ving.no specific Norwegian keywords', () => {
+      expect(COOKIE_KEYWORDS).toContain('informasjonskapsler'); // Norwegian for "cookies"
+      expect(COOKIE_KEYWORDS).toContain('idun-consent'); // Ving's consent framework
+    });
+
+    it('includes Usercentrics framework keywords', () => {
+      expect(COOKIE_KEYWORDS).toContain('usercentrics'); // Usercentrics framework
+      expect(COOKIE_KEYWORDS).toContain('uc-'); // Usercentrics prefix (uc-buttons-container, etc.)
+    });
   });
 
   describe('Combined Keywords', () => {

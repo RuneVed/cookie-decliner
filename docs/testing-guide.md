@@ -5,7 +5,7 @@ Testing setup with Jest and Playwright for unit and end-to-end testing.
 ## 🏃‍♂️ Quick Commands
 
 ```bash
-# Run all unit tests (96 tests)
+# Run all unit tests (100 tests)
 npm test
 
 # Development with watch mode
@@ -34,7 +34,7 @@ npm run test:debug
 | **api-handler.ts** | **93.79%** ✅ | API integrations (TCF, SourcePoint) |
 | **content-script.ts** | **0%*** 📝 | Extension context limitations |
 
-**Overall: 96 tests passing (including 10 checkbox consent tests), 66.66% lines, 50% branches**
+**Overall: 100 tests passing (including 10 checkbox consent tests + 2 Ving.no tests), 66.66% lines, 50% branches**
 
 > *Content script coverage measured via dependencies due to extension context limitations.
 

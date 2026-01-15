@@ -8,7 +8,6 @@ class CookieDecliner {
   private observer: MutationObserver | null = null;
   private readonly processed = new Set<Element>();
   private consentProcessed = false;
-  private readonly processedIframes = new WeakSet<HTMLIFrameElement>(); // Track without DOM modification
 
   constructor() {
     this.declineSelectors = getAllDeclineSelectors();
@@ -24,6 +23,9 @@ class CookieDecliner {
     
     // Set up mutation observer for dynamic content
     this.setupMutationObserver();
+    
+    // Set up shadow DOM observer for Usercentrics
+    this.setupShadowDOMObserver();
     
     // Set up post message listener
     this.setupPostMessageListener();
@@ -43,12 +45,31 @@ class CookieDecliner {
     }
     
     // Then try standard decline button clicking
+    // Check if Usercentrics button exists in DOM (Apollo uses this)
+    let ucButton = document.querySelector('[data-testid="uc-deny-all-button"]');
+    
+    // Check shadow DOM in #usercentrics-root specifically (Apollo pattern)
+    if (!ucButton) {
+      const ucRoot = document.querySelector('#usercentrics-root');
+      if (ucRoot?.shadowRoot) {
+        ucButton = ucRoot.shadowRoot.querySelector('[data-testid="uc-deny-all-button"]');
+      }
+    }
+    
+    if (ucButton && DOMUtils.isElementVisible(ucButton) && DOMUtils.isCookieRelatedButton(ucButton)) {
+      console.log('Cookie Decliner: Clicking Usercentrics deny button');
+      DOMUtils.clickElement(ucButton);
+      this.processed.add(ucButton);
+      this.markConsentProcessed();
+      return true;
+    }
+    
     for (const { selector } of this.declineSelectors) {
       try {
         const elements = DOMUtils.findElementsBySelector(selector);
-        
         for (const element of elements) {
           if (this.processElement(element)) {
+            console.log('Cookie Decliner: Successfully declined cookies');
             return true;
           }
         }
@@ -90,6 +111,60 @@ class CookieDecliner {
     }
   }
 
+  /**
+   * Set up mutation observer for shadow DOM content in #usercentrics-root
+   */
+  private setupShadowDOMObserver(): void {
+    // Poll to find and observe the shadow DOM
+    const maxAttempts = 20;
+    let attempts = 0;
+    
+    const checkForShadowDOM = (): void => {
+      if (this.consentProcessed || APIHandler.isConsentProcessed()) {
+        return;
+      }
+      
+      attempts++;
+      const ucRoot = document.querySelector('#usercentrics-root');
+      
+      if (ucRoot?.shadowRoot) {
+        const shadowObserver = new MutationObserver((_mutations) => {
+          if (this.consentProcessed || APIHandler.isConsentProcessed()) {
+            shadowObserver.disconnect();
+            return;
+          }
+          
+          const shadowRoot = ucRoot.shadowRoot;
+          if (!shadowRoot) return;
+          
+          const denyButton = shadowRoot.querySelector('[data-testid="uc-deny-all-button"]');
+          if (denyButton && DOMUtils.isElementVisible(denyButton) && DOMUtils.isCookieRelatedButton(denyButton)) {
+            console.log('Cookie Decliner: Clicking Usercentrics deny button');
+            DOMUtils.clickElement(denyButton);
+            this.processed.add(denyButton);
+            this.markConsentProcessed();
+            shadowObserver.disconnect();
+          }
+        });
+        
+        shadowObserver.observe(ucRoot.shadowRoot, {
+          childList: true,
+          subtree: true
+        });
+        
+        return; // Found and set up observer
+      }
+      
+      // Keep trying to find shadow DOM
+      if (attempts < maxAttempts) {
+        setTimeout(checkForShadowDOM, 200);
+      }
+    };
+    
+    // Start checking for shadow DOM
+    setTimeout(checkForShadowDOM, 100);
+  }
+
   private setupMutationObserver(): void {
     this.observer = new MutationObserver((mutations) => {
       if (this.consentProcessed || APIHandler.isConsentProcessed()) {
@@ -101,8 +176,23 @@ class CookieDecliner {
           const addedElements = Array.from(mutation.addedNodes)
             .filter(node => node.nodeType === Node.ELEMENT_NODE) as Element[];
           
+          // Check for Usercentrics button directly in added elements
+          for (const el of addedElements) {
+            const testId = el.getAttribute('data-testid');
+            if (testId === 'uc-deny-all-button' || 
+                (el instanceof HTMLElement && el.querySelector('[data-testid="uc-deny-all-button"]'))) {
+              setTimeout(() => {
+                if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
+                  this.findAndClickDeclineButton();
+                }
+              }, 100);
+              return;
+            }
+          }
+          
+          // Check for cookie-related content
           if (DOMUtils.hasCookieContent(addedElements)) {
-            const randomDelay = 400 + Math.floor(Math.random() * 200); // 400-600ms
+            const randomDelay = 400 + Math.floor(Math.random() * 200);
             setTimeout(() => {
               if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
                 this.findAndClickDeclineButton();
@@ -134,9 +224,6 @@ class CookieDecliner {
         this.handleSourcePointMessage(event.data);
       }
     }, false);
-    
-    // Schedule iframe checks for delayed consent popups
-    this.scheduleIframeChecks();
   }
 
   private isTrustedOrigin(origin: string): boolean {
@@ -275,32 +362,6 @@ class CookieDecliner {
     return input.replace(/[<>"/\\&]/g, '').substring(0, 100);
   }
 
-  private scheduleIframeChecks(): void {
-    // Check for SourcePoint iframes that might load later with randomized timing
-    const baseDelays = [1000, 3000, 5000];
-    
-    baseDelays.forEach(baseDelay => {
-      const randomizedDelay = baseDelay + Math.floor(Math.random() * 500); // Add 0-500ms jitter
-      setTimeout(() => {
-        if (this.consentProcessed || APIHandler.isConsentProcessed()) return;
-        
-        const iframes = DOMUtils.findSourcePointIframes();
-        iframes.forEach(iframe => {
-          if (!this.processedIframes.has(iframe)) {
-            this.processedIframes.add(iframe);
-            iframe.addEventListener('load', () => {
-              const loadDelay = 800 + Math.floor(Math.random() * 400); // 800-1200ms
-              setTimeout(() => {
-                if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
-                  APIHandler.declineAllConsent();
-                }
-              }, loadDelay);
-            });
-          }
-        });
-      }, randomizedDelay);
-    });
-  }
 }
 
 // Initialize when DOM is ready

@@ -61,33 +61,32 @@ export class DOMUtils {
     const className = element.className?.toLowerCase() ?? '';
     const id = element.id?.toLowerCase() ?? '';
     const ariaLabel = element.getAttribute('aria-label')?.toLowerCase() ?? '';
+    const testId = element.getAttribute('data-testid')?.toLowerCase() ?? '';
     
     // Combine all text sources for analysis
-    const allText = `${text} ${className} ${id} ${ariaLabel}`.toLowerCase();
+    const allText = `${text} ${className} ${id} ${ariaLabel} ${testId}`.toLowerCase();
     
     // Check for exclusion keywords first
-    const hasExcludeKeyword = EXCLUDE_KEYWORDS.some(keyword => allText.includes(keyword));
-    if (hasExcludeKeyword) {
+    if (EXCLUDE_KEYWORDS.some(keyword => allText.includes(keyword))) {
       return false;
+    }
+    
+    // Explicit check for Usercentrics deny button (Apollo, etc.)
+    if (testId === 'uc-deny-all-button' || testId === 'uc-accept-all-button') {
+      return testId === 'uc-deny-all-button'; // Only return true for deny button
     }
     
     // Check for cookie-related keywords
     const cookieKeywords = getAllCookieKeywords();
-    const hasCookieKeyword = cookieKeywords.some(keyword => allText.includes(keyword));
-    
-    if (hasCookieKeyword) {
+    if (cookieKeywords.some(keyword => allText.includes(keyword))) {
       return true;
     }
     
     // Check parent context for cookie-related content
     if (element instanceof HTMLElement) {
-      const hasParentContext = this.hasParentCookieContext(element);
-      if (hasParentContext) {
-        return true;
-      }
+      return this.hasParentCookieContext(element);
     }
     
-    console.log('Cookie Decliner: Skipping button - no cookie context detected');
     return false;
   }
 
@@ -99,11 +98,12 @@ export class DOMUtils {
     let levels = 0;
     
     while (parent && levels < 5) {
-      const parentText = parent.textContent?.toLowerCase() || '';
-      const parentClass = parent.className?.toLowerCase() || '';
-      const parentId = parent.id?.toLowerCase() || '';
+      const parentText = parent.textContent?.toLowerCase() ?? '';
+      const parentClass = parent.className?.toLowerCase() ?? '';
+      const parentId = parent.id?.toLowerCase() ?? '';
+      const parentTestId = parent.getAttribute('data-testid')?.toLowerCase() ?? '';
       
-      const parentContent = `${parentText} ${parentClass} ${parentId}`;
+      const parentContent = `${parentText} ${parentClass} ${parentId} ${parentTestId}`;
       
       // Check if parent has cookie-related keywords
       const hasCookieContext = COOKIE_KEYWORDS.some(keyword => 
@@ -147,11 +147,12 @@ export class DOMUtils {
    */
   static hasCookieContent(elements: Element[]): boolean {
     return elements.some(element => {
-      const text = element.textContent?.toLowerCase() || '';
-      const className = element.className?.toLowerCase() || '';
-      const id = element.id?.toLowerCase() || '';
+      const text = element.textContent?.toLowerCase() ?? '';
+      const className = element.className?.toLowerCase() ?? '';
+      const id = element.id?.toLowerCase() ?? '';
+      const testId = element.getAttribute('data-testid')?.toLowerCase() ?? '';
       
-      const content = `${text} ${className} ${id}`;
+      const content = `${text} ${className} ${id} ${testId}`;
       return COOKIE_KEYWORDS.some(keyword => content.includes(keyword));
     });
   }
@@ -242,31 +243,5 @@ export class DOMUtils {
       console.debug('Error handling checkbox consent:', error);
       return false;
     }
-  }
-
-  /**
-   * Find SourcePoint-related iframes
-   */
-  static findSourcePointIframes(): HTMLIFrameElement[] {
-    const selectors = [
-      'iframe[id*="sp_message"]',
-      'iframe[id*="sp_"]',
-      'iframe[src*="sourcepoint"]',
-      'iframe[src*="cmp"]',
-      'iframe[name*="sp"]'
-    ];
-    
-    const iframeSet = new Set<HTMLIFrameElement>();
-    
-    selectors.forEach(selector => {
-      const foundElements = Array.from(document.querySelectorAll(selector));
-      foundElements.forEach(element => {
-        if (element instanceof HTMLIFrameElement) {
-          iframeSet.add(element);
-        }
-      });
-    });
-    
-    return Array.from(iframeSet);
   }
 }

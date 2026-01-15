@@ -160,9 +160,48 @@ describe('Selectors Configuration', () => {
       
       expect(avslåIndex).toBeGreaterThan(avslåAlleIndex);
     });
+
+    it('should include aria-label selectors for Ving.no pattern', () => {
+      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
+      const selectors = norwegian!.selectors.map(s => s.selector);
+      
+      // Check for exact aria-label match (most reliable)
+      expect(selectors).toContain('button[aria-label="Avvis alle"]');
+      
+      // Check for partial aria-label match (fallback)
+      expect(selectors).toContain('button[aria-label*="Avvis alle"]');
+      
+      // Verify aria-label comes before text-based selector (more reliable)
+      const ariaIndex = norwegian!.selectors.findIndex(s => 
+        s.selector === 'button[aria-label="Avvis alle"]');
+      const textIndex = norwegian!.selectors.findIndex(s => 
+        s.selector === 'button:contains("Avvis alle")');
+      
+      expect(ariaIndex).toBeLessThan(textIndex);
+    });
   });
 
-  describe('Complianz Integration', () => {
+  describe('Framework Integration Tests', () => {
+    it('should detect Usercentrics deny button (Apollo pattern)', () => {
+      // Simulate Apollo.no Usercentrics HTML structure
+      document.body.innerHTML = `
+        <div data-testid="uc-footer">
+          <button role="button" data-testid="uc-deny-all-button" class="sc-gsFSXq dGhNDE">Avvis alle</button>
+        </div>
+      `;
+      
+      const allSelectors = getAllDeclineSelectors();
+      const usercentrics = allSelectors.find(s => 
+        s.selector === '[data-testid="uc-deny-all-button"]');
+      
+      expect(usercentrics).toBeDefined();
+      expect(usercentrics?.description).toBe('Usercentrics: Deny all');
+      
+      const button = document.querySelector('[data-testid="uc-deny-all-button"]');
+      expect(button).toBeTruthy();
+      expect(button?.textContent).toBe('Avvis alle');
+    });
+
     it('should detect Complianz deny button by class', () => {
       // Simulate bikebrothers.no HTML structure
       document.body.innerHTML = `
