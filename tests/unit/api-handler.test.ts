@@ -1,22 +1,26 @@
 import { APIHandler, SECURE_RESET_SYMBOL } from '../../src/api-handler';
-import { hasTCFAPI, hasSourcePointAPI } from '../../src/types';
+import { hasTCFAPI, hasSourcePointAPI, hasDidomiAPI } from '../../src/types';
 
 // Mock window object with proper typing
 declare global {
   interface Window {
     __tcfapi?: any;
     _sp_?: any;
+    Didomi?: any;
+    didomiOnReady?: Array<() => void>;
   }
 }
 
 // Mock the type guards
 jest.mock('../../src/types', () => ({
   hasTCFAPI: jest.fn(),
-  hasSourcePointAPI: jest.fn()
+  hasSourcePointAPI: jest.fn(),
+  hasDidomiAPI: jest.fn()
 }));
 
 const mockHasTCFAPI = hasTCFAPI as jest.MockedFunction<typeof hasTCFAPI>;
 const mockHasSourcePointAPI = hasSourcePointAPI as jest.MockedFunction<typeof hasSourcePointAPI>;
+const mockHasDidomiAPI = hasDidomiAPI as jest.MockedFunction<typeof hasDidomiAPI>;
 
 describe('APIHandler', () => {
   // Spy variables for proper cleanup
@@ -29,6 +33,8 @@ describe('APIHandler', () => {
     delete (window as any).__cmp;
     delete (window as any).Cookiebot;
     delete (window as any).OneTrust;
+    delete (window as any).Didomi;
+    delete (window as any).didomiOnReady;
     
     // Reset APIHandler state
     APIHandler.setConsentProcessed(false);
@@ -38,6 +44,7 @@ describe('APIHandler', () => {
     // Reset mocks
     mockHasTCFAPI.mockReturnValue(false);
     mockHasSourcePointAPI.mockReturnValue(false);
+    mockHasDidomiAPI.mockReturnValue(false);
     jest.clearAllMocks();
   });
 
@@ -659,6 +666,141 @@ describe('APIHandler', () => {
       expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Stopped TCF API checking - likely not needed in this context');
       
       consoleSpy.mockRestore();
+    });
+  });
+});
+
+describe('APIHandler - Didomi CMP', () => {
+  beforeEach(() => {
+    delete (window as any).Didomi;
+    delete (window as any).didomiOnReady;
+    APIHandler.setConsentProcessed(false);
+    (APIHandler as any)[SECURE_RESET_SYMBOL]();
+    mockHasDidomiAPI.mockReturnValue(false);
+    jest.clearAllMocks();
+  });
+
+  describe('hasDidomiAPI type guard (via handleDidomiAPI)', () => {
+    it('should not set consent when Didomi API not ready', () => {
+      // Arrange
+      mockHasDidomiAPI.mockReturnValue(false);
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      APIHandler.handleDidomiAPI();
+
+      // Assert
+      expect(APIHandler.isConsentProcessed()).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: No Didomi API found or not ready');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should call setUserDisagreeToAll and mark consent processed when API is ready', () => {
+      // Arrange
+      const mockSetUserDisagreeToAll = jest.fn();
+      (window as any).Didomi = {
+        isReady: () => true,
+        setUserDisagreeToAll: mockSetUserDisagreeToAll
+      };
+      mockHasDidomiAPI.mockReturnValue(true);
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      APIHandler.handleDidomiAPI();
+
+      // Assert
+      expect(mockSetUserDisagreeToAll).toHaveBeenCalledTimes(1);
+      expect(APIHandler.isConsentProcessed()).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Successfully declined all consent via Didomi API');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should not call API when consent already processed', () => {
+      // Arrange
+      const mockSetUserDisagreeToAll = jest.fn();
+      (window as any).Didomi = {
+        isReady: () => true,
+        setUserDisagreeToAll: mockSetUserDisagreeToAll
+      };
+      mockHasDidomiAPI.mockReturnValue(true);
+      APIHandler.setConsentProcessed(true);
+
+      // Act
+      APIHandler.handleDidomiAPI();
+
+      // Assert
+      expect(mockSetUserDisagreeToAll).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors from setUserDisagreeToAll gracefully', () => {
+      // Arrange
+      (window as any).Didomi = {
+        isReady: () => true,
+        setUserDisagreeToAll: () => { throw new Error('Didomi error'); }
+      };
+      mockHasDidomiAPI.mockReturnValue(true);
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      // Act & Assert - should not throw
+      expect(() => APIHandler.handleDidomiAPI()).not.toThrow();
+      expect(consoleSpy).toHaveBeenCalledWith('Cookie Decliner: Error using Didomi API:', expect.any(Error));
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('didomiOnReady late-loading fallback', () => {
+    it('should register callback on didomiOnReady array when Didomi not ready', () => {
+      // Arrange
+      mockHasTCFAPI.mockReturnValue(false);
+      mockHasSourcePointAPI.mockReturnValue(false);
+      mockHasDidomiAPI.mockReturnValue(false);
+      jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      APIHandler.checkForGlobalAPIs();
+
+      // Assert
+      expect((window as any).didomiOnReady).toBeInstanceOf(Array);
+      expect((window as any).didomiOnReady.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should call handleDidomiAPI when didomiOnReady callback fires', () => {
+      // Arrange
+      mockHasTCFAPI.mockReturnValue(false);
+      mockHasSourcePointAPI.mockReturnValue(false);
+      mockHasDidomiAPI.mockReturnValue(false);
+      jest.spyOn(console, 'log').mockImplementation();
+
+      APIHandler.checkForGlobalAPIs();
+
+      // Now simulate Didomi SDK becoming ready
+      const mockSetUserDisagreeToAll = jest.fn();
+      (window as any).Didomi = { isReady: () => true, setUserDisagreeToAll: mockSetUserDisagreeToAll };
+      mockHasDidomiAPI.mockReturnValue(true);
+
+      // Act: fire the registered callback
+      (window as any).didomiOnReady[0]();
+
+      // Assert
+      expect(mockSetUserDisagreeToAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('should append to existing didomiOnReady array', () => {
+      // Arrange - pre-existing callbacks
+      (window as any).didomiOnReady = [jest.fn()];
+      mockHasTCFAPI.mockReturnValue(false);
+      mockHasSourcePointAPI.mockReturnValue(false);
+      mockHasDidomiAPI.mockReturnValue(false);
+      jest.spyOn(console, 'log').mockImplementation();
+
+      // Act
+      APIHandler.checkForGlobalAPIs();
+
+      // Assert: original callback preserved, new one added
+      expect((window as any).didomiOnReady.length).toBe(2);
     });
   });
 });

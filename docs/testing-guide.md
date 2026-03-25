@@ -5,7 +5,7 @@ Testing setup with Jest and Playwright for unit and end-to-end testing.
 ## 🏃‍♂️ Quick Commands
 
 ```bash
-# Run all unit tests (100 tests)
+# Run all unit tests (111 tests)
 npm test
 
 # Development with watch mode
@@ -31,10 +31,10 @@ npm run test:debug
 | **selectors.ts** | **100%** ✅ | Config validation, generation |
 | **keywords.ts** | **100%** ✅ | Keyword matching logic |
 | **dom-utils.ts** | **100%** ✅ | DOM operations, checkbox consent |
-| **api-handler.ts** | **93.79%** ✅ | API integrations (TCF, SourcePoint) |
+| **api-handler.ts** | **93.79%** ✅ | API integrations (TCF, SourcePoint, Didomi) |
 | **content-script.ts** | **0%*** 📝 | Extension context limitations |
 
-**Overall: 100 tests passing (including 10 checkbox consent tests + 2 Ving.no tests), 66.66% lines, 50% branches**
+**Overall: 111 tests passing (including 10 checkbox consent tests, 10 Didomi consent tests + 2 Ving.no tests), 66.66% lines, 50% branches**
 
 > *Content script coverage measured via dependencies due to extension context limitations.
 
@@ -62,7 +62,8 @@ tests/
 │   ├── keywords.test.ts        # Cookie keyword validation
 │   ├── dom-utils.test.ts       # DOM manipulation & detection
 │   ├── checkbox-consent.test.ts # Checkbox-based consent (MaxGaming)
-│   ├── api-handler.test.ts     # TCF/SourcePoint API integration
+│   ├── didomi-consent.test.ts   # Didomi CMP two-step flow (norskkalender.no)
+│   ├── api-handler.test.ts     # TCF/SourcePoint/Didomi API integration
 │   ├── content-script.test.ts  # Extension coordination logic
 │   └── rate-limit-security.test.ts # Security tests
 └── e2e/                        # Integration tests (Playwright)
@@ -112,7 +113,7 @@ npm run test:e2e:debug
 ## 📈 Quality Metrics
 
 ### Current Status ✅
-- **96 unit tests passing** in ~3.6 seconds
+- **111 unit tests passing** in ~3.6 seconds
 - **80%+ coverage** enforced on critical modules
 - **Type-safe testing** with full TypeScript integration
 - **Modern Jest configuration** with ESM support
@@ -120,11 +121,12 @@ npm run test:e2e:debug
 ### Coverage Highlights
 - **selectors.ts**: 100% coverage (language/framework validation)
 - **keywords.ts**: 100% coverage (cookie keyword detection)
-- **dom-utils.ts**: 100% coverage (DOM manipulation + checkbox consent)
-- **api-handler.ts**: 93.8% coverage (TCF/SourcePoint integration)
+- **dom-utils.ts**: 100% coverage (DOM manipulation + checkbox consent + Didomi)
+- **api-handler.ts**: 93.8% coverage (TCF/SourcePoint/Didomi integration)
 
 ### New Features Tested
 - **Checkbox-based consent** (10 tests) - MaxGaming pattern support
+- **Didomi CMP two-step flow** (10 tests) - norskkalender.no pattern
 - **Multi-language support** - Norwegian and English text recognition
 - **Error handling** - Graceful degradation for edge cases
 

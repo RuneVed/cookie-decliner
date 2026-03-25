@@ -43,6 +43,14 @@ class CookieDecliner {
       this.markConsentProcessed();
       return true;
     }
+
+    // Try Didomi CMP preferences flow (e.g., norskkalender.no)
+    // Handles the two-step "Avslå alle" → "Lagre" interaction
+    if (DOMUtils.handleDidomiPreferences()) {
+      console.log('Cookie Decliner: Successfully handled Didomi preferences consent');
+      this.markConsentProcessed();
+      return true;
+    }
     
     // Then try standard decline button clicking
     // Check if Usercentrics button exists in DOM (Apollo uses this)

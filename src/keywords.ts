@@ -9,7 +9,7 @@ export const COOKIE_KEYWORDS = [
   'decline', 'reject', 'deny', 'refuse', 'avvis', 'avslå',
   'personvern', 'samtykke', 'cookieinnstillinger', 'tilpass',
   'nødvendige', 'innstillinger', 'flere', 'complianz', 'cmplz',
-  'informasjonskapsler', 'idun-consent', 'usercentrics', 'uc-'
+  'informasjonskapsler', 'idun-consent', 'usercentrics', 'uc-', 'didomi'
 ];
 
 // Multi-language keywords for cookie-related content detection
@@ -19,7 +19,7 @@ export const COOKIE_CONTENT_KEYWORDS = {
     'cookieinnstillinger', 'persondata', 'sporingsteknologi',
     'nødvendige', 'innstillinger', 'flere', 'proteinfabrikken',
     'godkjenn', 'lagre', 'informasjonskapsler', 'opplevelse',
-    'partnere', 'retningslinjer', 'markedsføring'
+    'partnere', 'retningslinjer', 'markedsføring', 'didomi'
   ]
 };
 

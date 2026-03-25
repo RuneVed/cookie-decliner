@@ -1,5 +1,5 @@
 // API handlers for different cookie consent management platforms
-import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI } from './types';
+import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI, hasDidomiAPI } from './types';
 
 // Secure reset mechanism using Symbol - not discoverable via property enumeration
 const SECURE_RESET_SYMBOL = Symbol('secure-reset-for-testing-only');
@@ -46,9 +46,53 @@ export class APIHandler {
       console.log('Cookie Decliner: Found SourcePoint _sp_ object:', windowWithAPI._sp_);
       this.handleSourcePointAPI();
     }
+
+    // Check for Didomi CMP API
+    if (hasDidomiAPI(window)) {
+      console.log('Cookie Decliner: Found Didomi API immediately!');
+      this.handleDidomiAPI();
+    } else {
+      // Register late-loading callback for Didomi
+      this.waitForDidomiAPI();
+    }
     
     // Log other API availability
     this.logOtherAPIs();
+  }
+
+  /**
+   * Handle Didomi CMP API
+   */
+  static handleDidomiAPI(): void {
+    if (!hasDidomiAPI(window)) {
+      console.log('Cookie Decliner: No Didomi API found or not ready');
+      return;
+    }
+
+    if (this.consentProcessed) {
+      return;
+    }
+
+    console.log('Cookie Decliner: Declining all consent via Didomi API');
+    try {
+      (window as WindowWithAPIs).Didomi?.setUserDisagreeToAll();
+      console.log('Cookie Decliner: Successfully declined all consent via Didomi API');
+      this.setConsentProcessed(true);
+    } catch (error) {
+      console.log('Cookie Decliner: Error using Didomi API:', error);
+    }
+  }
+
+  /**
+   * Register a didomiOnReady callback for late-loading Didomi SDK
+   */
+  private static waitForDidomiAPI(): void {
+    const win = window as WindowWithAPIs;
+    win.didomiOnReady = win.didomiOnReady ?? [];
+    win.didomiOnReady.push(() => {
+      console.log('Cookie Decliner: Didomi SDK ready (late-load), attempting decline');
+      this.handleDidomiAPI();
+    });
   }
 
   /**
@@ -259,7 +303,8 @@ export class APIHandler {
     const apis = [
       { name: 'CMP API', check: () => typeof windowWithAPI.__cmp !== 'undefined' },
       { name: 'Cookiebot API', check: () => typeof windowWithAPI.Cookiebot !== 'undefined' },
-      { name: 'OneTrust API', check: () => typeof windowWithAPI.OneTrust !== 'undefined' }
+      { name: 'OneTrust API', check: () => typeof windowWithAPI.OneTrust !== 'undefined' },
+      { name: 'Didomi API', check: () => typeof windowWithAPI.Didomi !== 'undefined' }
     ];
 
     apis.forEach(api => {
