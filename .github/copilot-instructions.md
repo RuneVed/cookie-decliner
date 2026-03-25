@@ -1,7 +1,7 @@
 # Cookie Decliner Extension - AI Coding Agent Instructions
 
 ## 🎯 Project Overview
-Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint), DOM analysis, checkbox-based consent handling, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
+Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint, Didomi), DOM analysis, checkbox-based consent handling, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
 
 ## 📋 Development Guidelines
 
@@ -18,7 +18,7 @@ Browser extension that automatically declines cookie consent popups using multi-
 
 ### Core Components (src/)
 - **content-script.ts** - Main orchestrator with MutationObserver for dynamic content
-- **api-handler.ts** - Cookie consent API integration (TCF, SourcePoint CMP)
+- **api-handler.ts** - Cookie consent API integration (TCF, SourcePoint CMP, Didomi)
 - **dom-utils.ts** - DOM manipulation with visibility/context validation + checkbox consent handling
 - **selectors.ts** - Multi-language button selectors organized by framework
 - **keywords.ts** - Text validation (COOKIE_KEYWORDS vs EXCLUDE_KEYWORDS)
@@ -59,17 +59,18 @@ npm run prebuild     # ESLint with --max-warnings 0 (strict)
 
 ### Testing Strategy (Jest + Playwright)
 ```bash
-npm test                # Unit tests only (96 tests)
+npm test                # Unit tests only (111 tests)
 npm run test:coverage   # Coverage report (66.66% overall, 100% dom-utils)
 npm run test:all        # Unit + E2E tests
 npm run test:e2e        # Playwright browser automation
 ```
 
 **Testing Philosophy**: 
-- Unit tests for logic validation (dom-utils, api-handler, selectors, checkbox consent)
+- Unit tests for logic validation (dom-utils, api-handler, selectors, checkbox consent, Didomi)
 - E2E tests simplified to structure validation (not full site testing)
 - Mock browser APIs in `tests/setup.ts` with getBoundingClientRect
 - Comprehensive checkbox consent tests (10 tests covering MaxGaming pattern)
+- Comprehensive Didomi CMP tests (10 tests covering norskkalender.no two-step flow)
 
 ## 🔧 Code Conventions
 

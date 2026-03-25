@@ -244,4 +244,64 @@ export class DOMUtils {
       return false;
     }
   }
+
+  /**
+   * Handle Didomi CMP preferences flow (norskkalender.no pattern).
+   *
+   * Two-phase approach:
+   * Phase 1 – Initial popup visible, preferences panel not yet open:
+   *   Clicks "#didomi-notice-learn-more-button" ("Les mer") to open the panel,
+   *   then returns false so the MutationObserver can re-trigger once the panel appears.
+   *
+   * Phase 2 – Preferences panel open (#btn-toggle-disagree visible):
+   *   Clicks "Avslå alle" (#btn-toggle-disagree), then clicks "Lagre"
+   *   (#btn-toggle-save) once it is no longer disabled.
+   *   Returns true only when both clicks succeed.
+   */
+  static handleDidomiPreferences(): boolean {
+    try {
+      const disagreeBtn = document.querySelector<HTMLButtonElement>('#btn-toggle-disagree');
+      const saveBtn = document.querySelector<HTMLButtonElement>('#btn-toggle-save');
+
+      // Phase 2: preferences panel is open
+      if (disagreeBtn && saveBtn) {
+        if (!this.isElementVisible(disagreeBtn)) {
+          return false;
+        }
+
+        // Guard: don't click "Avslå alle" again if we already clicked it this pass
+        if (!disagreeBtn.dataset.cookieDeclinerClicked) {
+          console.log('Cookie Decliner: Clicking Didomi "Avslå alle" button');
+          disagreeBtn.dataset.cookieDeclinerClicked = '1';
+          this.clickElement(disagreeBtn);
+        }
+
+        // "Lagre" starts out disabled and becomes enabled after clicking "Avslå alle"
+        if (saveBtn.disabled) {
+          console.log('Cookie Decliner: Waiting for Didomi "Lagre" button to become enabled');
+          return false; // MutationObserver will re-trigger once the button is enabled
+        }
+
+        console.log('Cookie Decliner: Clicking Didomi "Lagre" button');
+        this.clickElement(saveBtn);
+        return true;
+      }
+
+      // Phase 1: preferences panel not open yet — click "Les mer" to open it
+      const learnMoreBtn = document.querySelector<HTMLButtonElement>('#didomi-notice-learn-more-button');
+      if (learnMoreBtn && this.isElementVisible(learnMoreBtn) && !learnMoreBtn.dataset.cookieDeclinerClicked) {
+        console.log('Cookie Decliner: Opening Didomi preferences panel ("Les mer")');
+        learnMoreBtn.dataset.cookieDeclinerClicked = '1';
+        this.clickElement(learnMoreBtn);
+        // Return false — do NOT mark consent as processed yet.
+        // The MutationObserver will call us again once the panel appears.
+        return false;
+      }
+
+      return false;
+    } catch (error) {
+      console.debug('Error handling Didomi preferences:', error);
+      return false;
+    }
+  }
 }

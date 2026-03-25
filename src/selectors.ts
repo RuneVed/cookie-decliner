@@ -89,6 +89,14 @@ export const FRAMEWORK_SELECTORS: CookieSelector[] = [
   { selector: '.ot-pc-refuse-all-handler', description: 'OneTrust: Refuse all' },
   { selector: '[data-testid="uc-deny-all-button"]', description: 'Usercentrics: Deny all' },
   { selector: '[data-testid="cookie-banner-decline"]', description: 'Generic cookie banner decline' },
+
+  // Didomi CMP selectors
+  // Step 2 (used by handleDidomiPreferences in dom-utils):
+  //   #btn-toggle-disagree → "Avslå alle"
+  //   #btn-toggle-save    → "Lagre" (enabled after clicking disagree)
+  // NOTE: #didomi-notice-learn-more-button is intentionally NOT here —
+  //       it opens the preferences panel but does not decline cookies.
+  //       handleDidomiPreferences() handles the full two-step flow.
   
   // Generic attribute selectors
   { selector: 'button[data-testid*="cookie"][data-testid*="decline"]:not([data-testid*="signin"]):not([data-testid*="login"])', description: 'Cookie decline (excluding login)' },

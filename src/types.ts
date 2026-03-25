@@ -55,6 +55,22 @@ export interface SourcePointAPI {
 }
 
 /**
+ * Didomi CMP global API interface
+ * @see https://developers.didomi.io/cmp/web-sdk/reference/api
+ */
+export interface DidomiAPI {
+  readonly isReady: () => boolean;
+  readonly setUserDisagreeToAll: () => void;
+  readonly notice: {
+    readonly hide: () => void;
+  };
+  readonly preferences: {
+    readonly show: (view?: string) => void;
+    readonly hide: () => void;
+  };
+}
+
+/**
  * Extended Window interface with cookie consent management APIs
  */
 export interface WindowWithAPIs extends Window {
@@ -71,6 +87,8 @@ export interface WindowWithAPIs extends Window {
     readonly RejectAll?: () => void;
     readonly IsAlertBoxClosed?: () => boolean;
   };
+  readonly Didomi?: DidomiAPI;
+  didomiOnReady?: Array<() => void>;
 }
 
 /**
@@ -85,4 +103,12 @@ export function hasTCFAPI(win: Window): win is WindowWithAPIs & { __tcfapi: NonN
  */
 export function hasSourcePointAPI(win: Window): win is WindowWithAPIs & { _sp_: NonNullable<WindowWithAPIs['_sp_']> } {
   return '_sp_' in win && typeof (win as WindowWithAPIs)._sp_ === 'object' && (win as WindowWithAPIs)._sp_ !== null;
+}
+
+/**
+ * Type guard to check if window has Didomi API and is ready
+ */
+export function hasDidomiAPI(win: Window): win is WindowWithAPIs & { Didomi: DidomiAPI } {
+  const w = win as WindowWithAPIs;
+  return typeof w.Didomi === 'object' && w.Didomi !== null && typeof w.Didomi.isReady === 'function' && w.Didomi.isReady();
 }
