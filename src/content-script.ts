@@ -64,13 +64,15 @@ class CookieDecliner {
       return true;
     }
     
-    for (const { selector } of this.declineSelectors) {
+    for (const { selector, isExpandButton } of this.declineSelectors) {
       try {
         const elements = DOMUtils.findElementsBySelector(selector);
         for (const element of elements) {
-          if (this.processElement(element)) {
-            console.log('Cookie Decliner: Successfully declined cookies');
-            return true;
+          if (this.processElement(element, isExpandButton)) {
+            if (!isExpandButton) {
+              console.log('Cookie Decliner: Successfully declined cookies');
+            }
+            return !isExpandButton;
           }
         }
       } catch (error) {
@@ -81,7 +83,7 @@ class CookieDecliner {
     return false;
   }
 
-  private processElement(element: Element): boolean {
+  private processElement(element: Element, isExpandButton = false): boolean {
     if (!DOMUtils.isElementVisible(element)) {
       return false;
     }
@@ -96,7 +98,12 @@ class CookieDecliner {
     
     DOMUtils.clickElement(element);
     this.processed.add(element);
-    this.markConsentProcessed();
+
+    if (isExpandButton) {
+      console.log('Cookie Decliner: Clicked expand button, waiting for preferences panel');
+    } else {
+      this.markConsentProcessed();
+    }
     
     return true;
   }
