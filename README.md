@@ -2,7 +2,7 @@
 
 A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default.
 
-**✅ Manifest V3 Ready** - Chrome Web Store compliant | **100 Tests Passing** | **66.66% Test Coverage** | **Zero TypeScript/ESLint Errors**
+**✅ Manifest V3 Ready** - Chrome Web Store compliant | **111 Tests Passing** | **66.66% Test Coverage** | **Zero TypeScript/ESLint Errors**
 
 ## 🚀 Features
 
@@ -15,6 +15,7 @@ A powerful browser extension that automatically declines cookie consent popups o
   - Usercentrics
   - Complianz
   - TCF v2.0 API
+  - Didomi CMP (two-step flow)
   - Custom implementations
   - Checkbox-based consent (MaxGaming pattern)
 - **Cross-Browser Support** - Compatible with both Chrome and Firefox
@@ -68,7 +69,7 @@ A powerful browser extension that automatically declines cookie consent popups o
 - **esbuild 0.25.8** - Fast bundling with IIFE format for browser compatibility
 - **ESLint 9.32.0** - Latest flat config with comprehensive TypeScript rules
 - **Jest + Playwright** - Unit testing (61.92% coverage) + E2E browser automation
-- **100 passing tests** across 7 test suites with zero warnings
+- **111 passing tests** across 7 test suites with zero warnings
 - **Playwright** - End-to-end testing for real browser environments
 
 For detailed build system information, see [Build System Guide](docs/build-system.md).
@@ -115,7 +116,7 @@ npm run test:all      # Run all tests (unit + e2e)
 npm run lint:check    # Run linting with zero warnings
 ```
 
-**Current Status:** 100 unit tests, 97% coverage for DOM utilities (dom-utils), 94% coverage for API handler (api-handler)
+**Current Status:** 111 unit tests, 97% coverage for DOM utilities (dom-utils), 94% coverage for API handler (api-handler)
 
 ### Project Structure
 ```
@@ -168,6 +169,7 @@ The extension uses multiple detection strategies to identify and decline cookie 
 - **Cookiebot** - Direct API and selector support
 - **OneTrust** - Framework-specific button detection
 - **Usercentrics** - Comprehensive selector coverage
+- **Didomi CMP** - Two-step expand-and-decline flow for sites like cdon.com
 - **Custom Implementations** - Generic pattern matching
 
 ## 🌐 Browser Compatibility

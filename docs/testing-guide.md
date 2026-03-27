@@ -63,6 +63,7 @@ tests/
 │   ├── dom-utils.test.ts       # DOM manipulation & detection
 │   ├── checkbox-consent.test.ts # Checkbox-based consent (MaxGaming)
 │   ├── didomi-consent.test.ts   # Didomi CMP two-step flow (norskkalender.no)
+│   ├── didomi.test.ts           # Didomi CMP two-step flow (cdon.com, isExpandButton pattern)
 │   ├── api-handler.test.ts     # TCF/SourcePoint/Didomi API integration
 │   ├── content-script.test.ts  # Extension coordination logic
 │   └── rate-limit-security.test.ts # Security tests
@@ -127,6 +128,7 @@ npm run test:e2e:debug
 ### New Features Tested
 - **Checkbox-based consent** (10 tests) - MaxGaming pattern support
 - **Didomi CMP two-step flow** (10 tests) - norskkalender.no pattern
+- **Didomi CMP two-step flow for cdon.com** (new tests in didomi.test.ts) - isExpandButton pattern
 - **Multi-language support** - Norwegian and English text recognition
 - **Error handling** - Graceful degradation for edge cases
 
