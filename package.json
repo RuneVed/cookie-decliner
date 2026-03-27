@@ -13,7 +13,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "lint:check": "eslint src/**/*.ts --max-warnings 0",
     "prebuild": "npm run lint:check",
-    "test": "jest",
+    "test": "jest --forceExit",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:coverage:open": "jest --coverage && npm run open:coverage",

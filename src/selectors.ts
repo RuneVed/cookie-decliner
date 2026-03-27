@@ -2,6 +2,8 @@
 export interface CookieSelector {
   selector: string;
   description: string;
+  /** When true, clicking this button opens a deeper preferences panel — do not mark consent as processed */
+  isExpandButton?: boolean;
 }
 
 export interface LanguageConfig {
@@ -53,6 +55,14 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
 
 // Framework-specific selectors
 export const FRAMEWORK_SELECTORS: CookieSelector[] = [
+  // Didomi CMP (used by cdon.com)
+  // Step 1: Open preferences panel — do NOT mark consent as processed
+  { selector: '#didomi-notice-learn-more-button', description: 'Didomi: Open preferences panel (step 1)', isExpandButton: true },
+  { selector: 'button.didomi-learn-more-button', description: 'Didomi: Learn more button (step 1)', isExpandButton: true },
+
+  // Step 2: Decline all in preferences panel
+  { selector: '#btn-toggle-disagree', description: 'Didomi: Decline all (step 2)' },
+
   // Cookie Information specific selectors (hjemla.no uses this)
   { selector: 'button.coi-consent-banner__decline-button', description: 'Cookie Information: Decline button' },
   { selector: '.coi-consent-banner__decline-button', description: 'Cookie Information: Decline element' },
