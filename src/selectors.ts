@@ -34,6 +34,10 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       { selector: 'button[aria-label="Avvis alle"]', description: 'Norwegian: Reject all (aria-label, step 2)' },
       { selector: 'button:contains("Avvis alle")', description: 'Norwegian: Reject all (text, step 2)' },
       
+      // Accept necessary only (privacy-friendly "accept" option)
+      { selector: 'button:contains("Godta nødvendig")', description: 'Norwegian: Accept necessary only' },
+      { selector: 'button:contains("Godta nødvendige")', description: 'Norwegian: Accept only necessary (variant)' },
+      
       // Alternative Norwegian rejection patterns
       { selector: 'button[aria-label*="Avvis alle"]', description: 'Norwegian: Reject all (aria-label partial)' },
       { selector: 'button:contains("Avvis alle cookies")', description: 'Norwegian: Reject all cookies' },
@@ -55,6 +59,9 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
 
 // Framework-specific selectors
 export const FRAMEWORK_SELECTORS: CookieSelector[] = [
+  // Generic consent_needed_only class (e.g., norskenettbutikker.no)
+  { selector: 'button.consent_needed_only', description: 'Consent: Necessary only button (CSS class)' },
+
   // Didomi CMP (used by cdon.com)
   // Step 1: Open preferences panel — do NOT mark consent as processed
   { selector: '#didomi-notice-learn-more-button', description: 'Didomi: Open preferences panel (step 1)', isExpandButton: true },
