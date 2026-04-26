@@ -1,8 +1,14 @@
 // API handlers for different cookie consent management platforms
 import { type WindowWithAPIs, type TCFData, hasTCFAPI, hasSourcePointAPI, hasDidomiAPI } from './types';
+import { HUMAN_LIKE_DELAY_BASE_MS, HUMAN_LIKE_DELAY_VARIANCE_MS } from './constants';
 
 // Secure reset mechanism using Symbol - not discoverable via property enumeration
 const SECURE_RESET_SYMBOL = Symbol('secure-reset-for-testing-only');
+
+const SOURCEPOINT_REJECT_ALL_CHOICE = 11;  // SourcePoint + iframe "reject all" choice ID
+const MAX_TCF_CHECK_ATTEMPTS = 3;           // exponential backoff retry limit
+const TCF_BACKOFF_BASE_MS = 1000;           // multiplied by attempt count
+const INITIAL_TCF_CHECK_DELAY_MS = 100;     // delay before first TCF poll
 
 export class APIHandler {
   private static consentProcessed = false;
@@ -161,7 +167,7 @@ export class APIHandler {
       // Method 1: Use onMessageChoiceSelect event if available
       if (sp.config?.events?.onMessageChoiceSelect) {
         console.log('Cookie Decliner: Attempting SourcePoint onMessageChoiceSelect with choice 11 (reject all)');
-        sp.config.events.onMessageChoiceSelect({ choice: 11 });
+        sp.config.events.onMessageChoiceSelect({ choice: SOURCEPOINT_REJECT_ALL_CHOICE });
       }
       
       // Method 2: Use executeMessaging if available
@@ -282,9 +288,9 @@ export class APIHandler {
         if (tcfCheckTimeout) clearTimeout(tcfCheckTimeout);
       } else {
         console.log('Cookie Decliner: No TCF API found yet');
-        // Stop checking after 3 attempts or if we're in an iframe
-        if (tcfCheckCount < 3 && window === window.top) {
-          tcfCheckTimeout = setTimeout(tcfChecker, 1000 * tcfCheckCount); // Exponential backoff
+        // Stop checking after MAX_TCF_CHECK_ATTEMPTS or if we're in an iframe
+        if (tcfCheckCount < MAX_TCF_CHECK_ATTEMPTS && window === window.top) {
+          tcfCheckTimeout = setTimeout(tcfChecker, TCF_BACKOFF_BASE_MS * tcfCheckCount); // Exponential backoff
         } else {
           console.log('Cookie Decliner: Stopped TCF API checking - likely not needed in this context');
         }
@@ -292,7 +298,7 @@ export class APIHandler {
     };
     
     // Start checking with a short delay
-    tcfCheckTimeout = setTimeout(tcfChecker, 100);
+    tcfCheckTimeout = setTimeout(tcfChecker, INITIAL_TCF_CHECK_DELAY_MS);
   }
 
   /**
@@ -338,7 +344,7 @@ export class APIHandler {
         
         // Method 1: onMessageChoiceSelect with choice 11 (reject all)
         if (sp.config?.events?.onMessageChoiceSelect) {
-          sp.config.events.onMessageChoiceSelect({ choice: 11 });
+          sp.config.events.onMessageChoiceSelect({ choice: SOURCEPOINT_REJECT_ALL_CHOICE });
         }
         
         // Method 2: executeMessaging
@@ -394,14 +400,14 @@ export class APIHandler {
         }
         
         // Try to communicate with the iframe
-        const randomDelay = 400 + Math.floor(Math.random() * 200); // 400-600ms
+        const randomDelay = HUMAN_LIKE_DELAY_BASE_MS + Math.floor(Math.random() * HUMAN_LIKE_DELAY_VARIANCE_MS);
         setTimeout(() => {
           try {
             if (iframeElement.contentWindow) {
               // Send decline message to iframe
               const declineMessage = {
                 type: 'sp.choice',
-                choice: 11, // Reject all
+                choice: SOURCEPOINT_REJECT_ALL_CHOICE,
                 messageId
               };
               
@@ -413,7 +419,7 @@ export class APIHandler {
               // Also try alternative message formats
               iframeElement.contentWindow.postMessage({
                 name: 'sp.messageChoiceSelect',
-                body: { choice: 11, messageId }
+                body: { choice: SOURCEPOINT_REJECT_ALL_CHOICE, messageId }
               }, targetOrigin);
             }
           } catch (error) {

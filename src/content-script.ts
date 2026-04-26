@@ -2,6 +2,14 @@ import { getAllDeclineSelectors, type CookieSelector } from './selectors';
 import { DOMUtils } from './dom-utils';
 import { APIHandler } from './api-handler';
 import { type PostMessageData } from './types';
+import { HUMAN_LIKE_DELAY_BASE_MS, HUMAN_LIKE_DELAY_VARIANCE_MS } from './constants';
+
+const MAX_SHADOW_DOM_CHECK_ATTEMPTS = 20;       // Usercentrics/Apollo shadow DOM polling limit
+const SHADOW_DOM_CHECK_INTERVAL_MS = 200;       // delay between shadow DOM polls
+const INITIAL_SHADOW_DOM_CHECK_DELAY_MS = 100;  // delay before first shadow DOM check
+const MUTATION_RETRY_DELAY_MS = 100;            // delay before retrying after mutation
+const MAX_VALID_CHOICE_VALUE = 20;              // upper bound for postMessage choice validation
+const MAX_SANITIZED_STRING_LENGTH = 100;        // max chars kept from incoming postMessage strings
 
 class CookieDecliner {
   private readonly declineSelectors: CookieSelector[];
@@ -131,7 +139,7 @@ class CookieDecliner {
    */
   private setupShadowDOMObserver(): void {
     // Poll to find and observe the shadow DOM
-    const maxAttempts = 20;
+    const maxAttempts = MAX_SHADOW_DOM_CHECK_ATTEMPTS;
     let attempts = 0;
     
     const checkForShadowDOM = (): void => {
@@ -172,12 +180,12 @@ class CookieDecliner {
       
       // Keep trying to find shadow DOM
       if (attempts < maxAttempts) {
-        setTimeout(checkForShadowDOM, 200);
+        setTimeout(checkForShadowDOM, SHADOW_DOM_CHECK_INTERVAL_MS);
       }
     };
     
     // Start checking for shadow DOM
-    setTimeout(checkForShadowDOM, 100);
+    setTimeout(checkForShadowDOM, INITIAL_SHADOW_DOM_CHECK_DELAY_MS);
   }
 
   private setupMutationObserver(): void {
@@ -200,14 +208,14 @@ class CookieDecliner {
                 if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
                   this.findAndClickDeclineButton();
                 }
-              }, 100);
+              }, MUTATION_RETRY_DELAY_MS);
               return;
             }
           }
           
           // Check for cookie-related content
           if (DOMUtils.hasCookieContent(addedElements)) {
-            const randomDelay = 400 + Math.floor(Math.random() * 200);
+            const randomDelay = HUMAN_LIKE_DELAY_BASE_MS + Math.floor(Math.random() * HUMAN_LIKE_DELAY_VARIANCE_MS);
             setTimeout(() => {
               if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
                 this.findAndClickDeclineButton();
@@ -309,7 +317,7 @@ class CookieDecliner {
             if (!this.consentProcessed && !APIHandler.isConsentProcessed()) {
               APIHandler.declineAllConsent();
             }
-          }, 400 + Math.floor(Math.random() * 200)); // 400-600ms randomized
+          }, HUMAN_LIKE_DELAY_BASE_MS + Math.floor(Math.random() * HUMAN_LIKE_DELAY_VARIANCE_MS));
           break;
           
         case 'sp.hideMessage':
@@ -321,7 +329,7 @@ class CookieDecliner {
     if (message['choice'] !== undefined) {
       // Choice message received - validate it's a number within expected range
       const choice = message['choice'];
-      if (typeof choice === 'number' && choice >= 0 && choice <= 20) {
+      if (typeof choice === 'number' && choice >= 0 && choice <= MAX_VALID_CHOICE_VALUE) {
         // Valid choice received - could be used for further processing if needed
       }
     }
@@ -374,7 +382,7 @@ class CookieDecliner {
 
   private sanitizeString(input: string): string {
     // Remove potentially dangerous characters and limit length
-    return input.replace(/[<>"/\\&]/g, '').substring(0, 100);
+    return input.replace(/[<>"/\\&]/g, '').substring(0, MAX_SANITIZED_STRING_LENGTH);
   }
 
 }

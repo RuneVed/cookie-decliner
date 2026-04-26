@@ -1,6 +1,8 @@
 // Utility functions for DOM manipulation and element analysis
 import { EXCLUDE_KEYWORDS, COOKIE_KEYWORDS, getAllCookieKeywords } from './keywords';
 
+const MAX_PARENT_TRAVERSAL_LEVELS = 5; // levels to walk up the DOM checking for cookie context
+
 export class DOMUtils {
   /**
    * Find elements by selector, handling :contains() pseudo-selector manually
@@ -97,7 +99,7 @@ export class DOMUtils {
     let parent = element.parentElement;
     let levels = 0;
     
-    while (parent && levels < 5) {
+    while (parent && levels < MAX_PARENT_TRAVERSAL_LEVELS) {
       const parentText = parent.textContent?.toLowerCase() ?? '';
       const parentClass = parent.className?.toLowerCase() ?? '';
       const parentId = parent.id?.toLowerCase() ?? '';
