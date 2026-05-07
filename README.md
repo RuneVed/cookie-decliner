@@ -54,7 +54,24 @@ A powerful browser extension that automatically declines cookie consent popups o
    - Extension active until Firefox restart
 
 ### Production Installation
-*Coming soon to Chrome Web Store and Firefox Add-ons*
+
+- **Firefox (addons.mozilla.org):** *Listing pending review* — fill in the
+  AMO URL here once the first version is approved.
+- **Chrome Web Store:** *Submission planned* — see
+  [`docs/CHROME_SUBMISSION.md`](docs/CHROME_SUBMISSION.md).
+
+## 🔐 Permissions
+
+Cookie Decliner requests the minimum permissions required to detect and
+dismiss consent dialogs:
+
+| Permission | Why it is needed |
+|---|---|
+| `host_permissions: http://*/*` and `https://*/*` | Cookie consent dialogs can appear on any website. The content script must be allowed to run on every HTTP/HTTPS page so it can detect and click the decline button. The script does nothing on pages that do not contain a consent dialog. |
+
+The extension does **not** request `tabs`, `cookies`, `storage`,
+`webRequest`, `scripting`, or any other API. No data ever leaves the
+browser — see [`PRIVACY.md`](PRIVACY.md).
 
 ## 🛠️ Development Setup
 

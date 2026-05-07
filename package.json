@@ -1,8 +1,16 @@
 {
   "name": "cookie-decliner",
   "version": "1.0.0",
-  "description": "",
+  "description": "Manifest V3 browser extension that automatically declines cookie consent popups across major consent management frameworks (SourcePoint, TCF v2.0, Cookiebot, OneTrust, Usercentrics, Complianz, Didomi).",
   "main": "index.js",
+  "homepage": "https://github.com/RuneVed/cookie-decliner#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RuneVed/cookie-decliner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RuneVed/cookie-decliner/issues"
+  },
   "scripts": {
     "build": "npm run build:bundle",
     "build:types": "tsc --noEmit false --emitDeclarationOnly",
@@ -21,11 +29,24 @@
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:debug": "npx playwright test --debug",
-    "open:coverage": "if (Test-Path coverage/lcov-report/index.html) { Start-Process coverage/lcov-report/index.html }"
+    "open:coverage": "if (Test-Path coverage/lcov-report/index.html) { Start-Process coverage/lcov-report/index.html }",
+    "package": "node scripts/package.js",
+    "package:source": "node scripts/package-source.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "cookie",
+    "consent",
+    "privacy",
+    "gdpr",
+    "didomi",
+    "tcf",
+    "onetrust",
+    "cookiebot",
+    "browser-extension",
+    "manifest-v3"
+  ],
+  "author": "RuneVed <runevu@proton.me>",
+  "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.32.0",
@@ -33,6 +54,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@types/chrome": "^0.1.1",
     "@types/jest": "^29.5.14",
+    "archiver": "^7.0.1",
     "esbuild": "^0.25.8",
     "eslint": "^9.32.0",
     "jest": "^29.7.0",

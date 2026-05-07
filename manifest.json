@@ -3,8 +3,14 @@
   "name": "Cookie Decliner",
   "version": "1.0.0",
   "description": "Automatically decline cookie consent popups",
+  "author": "RuneVed",
   "minimum_chrome_version": "88",
-  "permissions": ["activeTab"],
+  "browser_specific_settings": {
+    "gecko": {
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": [],
   "host_permissions": [
     "http://*/*",
     "https://*/*"
