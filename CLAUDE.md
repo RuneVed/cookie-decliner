@@ -6,6 +6,9 @@ Guidance for Claude Code when working in this repository.
 
 Manifest V3 browser extension that automatically declines cookie consent popups. Uses a multi-tier detection strategy (API → DOM → text → context) and supports 9+ consent management frameworks across Norwegian, English, German, and French sites.
 
+## Rules
+**Model selection (MANDATORY):** Use **Sonnet** for coding, **Haiku** for subagents (exploration, file reading, data extraction), **Opus** for planning.
+
 ## Stack
 
 - TypeScript 5.8.3, strict mode, `verbatimModuleSyntax`
