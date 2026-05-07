@@ -1,6 +1,6 @@
 # Cookie Decliner Browser Extension
 
-A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default.
+A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default. Made with AI.
 
 **✅ Manifest V3 Ready** - Chrome Web Store compliant | **111 Tests Passing** | **66.66% Test Coverage** | **Zero TypeScript/ESLint Errors**
 
