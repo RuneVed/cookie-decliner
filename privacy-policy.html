@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Cookie Decliner</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.55;
+    max-width: 720px;
+    margin: 2.5rem auto;
+    padding: 0 1.25rem;
+    color: #222;
+    background: #fafafa;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { color: #e7e7e7; background: #121212; }
+    a { color: #8ab4f8; }
+    code { background: #1f1f1f; }
+  }
+  h1, h2 { line-height: 1.25; }
+  h1 { margin-top: 0; }
+  code {
+    background: #eee;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-size: 0.95em;
+  }
+  ul { padding-left: 1.4em; }
+  .meta { color: #666; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<h1>Privacy Policy &mdash; Cookie Decliner</h1>
+<p class="meta"><strong>Effective date:</strong> 2026-04-30</p>
+
+<h2>Who we are</h2>
+<p>
+  Cookie Decliner is an open-source browser extension developed by
+  <strong>RuneVed</strong>.<br>
+  Contact: <a href="mailto:runevu@proton.me">runevu@proton.me</a><br>
+  Source code:
+  <a href="https://github.com/RuneVed/cookie-decliner">github.com/RuneVed/cookie-decliner</a>
+</p>
+
+<h2>What data we collect</h2>
+<p>
+  <strong>None.</strong> Cookie Decliner does not collect, store, transmit,
+  or sell any personal data. The extension performs all of its work locally
+  inside the browser tab on which it runs.
+</p>
+
+<h2>What data we transmit to third parties</h2>
+<p>
+  <strong>None.</strong> The extension makes no network requests of its own.
+  It does not contact any analytics provider, telemetry endpoint, or remote
+  server.
+</p>
+
+<h2>Storage</h2>
+<p>
+  The extension does not use <code>chrome.storage</code>,
+  <code>localStorage</code>, <code>sessionStorage</code>,
+  <code>IndexedDB</code>, or cookies. Nothing is persisted between page
+  loads other than the extension code itself.
+</p>
+
+<h2>Permissions</h2>
+<p>
+  The extension requests <code>host_permissions</code> for
+  <code>http://*/*</code> and <code>https://*/*</code>. This broad scope is
+  necessary because cookie consent banners can appear on any website. The
+  host permissions are used <strong>only</strong> to:
+</p>
+<ul>
+  <li>Read the DOM of the current page in order to detect consent dialogs.</li>
+  <li>Click decline / reject buttons inside those dialogs.</li>
+  <li>
+    Call standardized consent APIs such as the IAB TCF v2.0
+    <code>__tcfapi</code>, SourcePoint <code>_sp_</code>, and Didomi
+    <code>setUserDisagreeToAll()</code> when present.
+  </li>
+</ul>
+<p>No information from any page is ever sent outside the browser.</p>
+
+<h2>Permissions the extension does NOT request</h2>
+<ul>
+  <li><code>tabs</code> &mdash; not requested.</li>
+  <li><code>cookies</code> &mdash; not requested.</li>
+  <li><code>storage</code> &mdash; not requested.</li>
+  <li><code>webRequest</code> / <code>webRequestBlocking</code> &mdash; not requested.</li>
+  <li><code>scripting</code> (programmatic injection) &mdash; not requested.</li>
+</ul>
+
+<h2>Children's privacy</h2>
+<p>
+  Because no data is collected, the extension does not knowingly collect
+  information from children under 13 (or any other age).
+</p>
+
+<h2>Changes to this policy</h2>
+<p>
+  Any future change that affects data handling will be released as a new
+  version of the extension and disclosed in this document and in the
+  release notes.
+</p>
+
+<h2>Reporting concerns</h2>
+<p>
+  If you believe Cookie Decliner is doing something inconsistent with this
+  policy, please
+  <a href="https://github.com/RuneVed/cookie-decliner/issues">open an issue</a>
+  or email <a href="mailto:runevu@proton.me">runevu@proton.me</a>.
+</p>
+</body>
+</html>

@@ -57,6 +57,8 @@ web-ext-artifacts/
 *.zip
 *.crx
 *.xpi
+release/
+store-assets/
 
 # TypeScript
 *.tsbuildinfo
