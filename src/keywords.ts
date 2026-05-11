@@ -9,7 +9,9 @@ export const COOKIE_KEYWORDS = [
   'decline', 'reject', 'deny', 'refuse', 'avvis', 'avslå',
   'personvern', 'samtykke', 'cookieinnstillinger', 'tilpass',
   'nødvendige', 'innstillinger', 'flere', 'complianz', 'cmplz',
-  'informasjonskapsler', 'idun-consent', 'usercentrics', 'uc-', 'didomi'
+  'informasjonskapsler', 'idun-consent', 'usercentrics', 'uc-', 'didomi',
+  'necessary', 'essential', 'preferences', 'settings', 'customize', 'customise', 'manage',
+  'fides'
 ];
 
 // Multi-language keywords for cookie-related content detection
@@ -20,13 +22,19 @@ export const COOKIE_CONTENT_KEYWORDS = {
     'nødvendige', 'innstillinger', 'flere', 'proteinfabrikken',
     'godkjenn', 'lagre', 'informasjonskapsler', 'opplevelse',
     'partnere', 'retningslinjer', 'markedsføring', 'didomi'
+  ],
+  english: [
+    'cookie', 'consent', 'privacy', 'decline', 'reject', 'accept',
+    'customize', 'customise', 'preferences', 'settings', 'necessary',
+    'essential', 'tracking', 'analytics', 'marketing', 'advertising',
+    'partners', 'policy', 'didomi'
   ]
 };
 
 // Get all cookie keywords in a flat array
 export const getAllCookieKeywords = (): string[] => {
-  return [
+  return [...new Set([
     ...COOKIE_KEYWORDS,
     ...Object.values(COOKIE_CONTENT_KEYWORDS).flat()
-  ];
+  ])];
 };

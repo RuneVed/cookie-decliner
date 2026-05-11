@@ -2,22 +2,24 @@
 
 A powerful browser extension that automatically declines cookie consent popups on websites, saving you time and protecting your privacy by default. Made with AI.
 
-**✅ Manifest V3 Ready** - Chrome Web Store compliant | **111 Tests Passing** | **66.66% Test Coverage** | **Zero TypeScript/ESLint Errors**
+**✅ Manifest V3 Ready** - Chrome Web Store compliant | **129 Tests Passing** | **56% Overall / 91%+ on dom-utils & api-handler** | **Zero TypeScript/ESLint Errors**
 
 ## 🚀 Features
 
 - **Automatic Cookie Popup Detection** - Instantly identifies and handles cookie consent banners
-- **Norwegian Language Support** - Optimized for Norwegian websites and cookie consent text
+- **Norwegian and English Language Support** - Optimized for Norwegian and English websites and cookie consent text
 - **Universal Framework Compatibility** - Supports major consent management platforms:
   - SourcePoint CMP
   - Cookiebot
   - OneTrust
-  - Usercentrics
+  - Usercentrics (incl. Apollo shadow DOM)
   - Complianz
   - TCF v2.0 API
-  - Didomi CMP (two-step flow)
-  - Custom implementations
+  - Didomi CMP (single-step + two-step flow)
+  - Fides CMP (Ethyca — NYT, Condé Nast; shadow DOM)
+  - Cookie Information
   - Checkbox-based consent (MaxGaming pattern)
+  - Custom implementations
 - **Cross-Browser Support** - Compatible with both Chrome and Firefox
 - **Intelligent Button Recognition** - Avoids clicking non-cookie buttons (login, newsletter, etc.)
 - **Checkbox Consent Handling** - Automatically unchecks optional cookies before saving
@@ -85,8 +87,8 @@ browser — see [`PRIVACY.md`](PRIVACY.md).
 - **TypeScript 5.8.3** - Enhanced strict configuration with latest best practices
 - **esbuild 0.25.8** - Fast bundling with IIFE format for browser compatibility
 - **ESLint 9.32.0** - Latest flat config with comprehensive TypeScript rules
-- **Jest + Playwright** - Unit testing (61.92% coverage) + E2E browser automation
-- **111 passing tests** across 7 test suites with zero warnings
+- **Jest + Playwright** - Unit testing (56% overall, 91%+ on dom-utils & api-handler) + E2E browser automation
+- **129 passing tests** across 9 test suites with zero warnings
 - **Playwright** - End-to-end testing for real browser environments
 
 For detailed build system information, see [Build System Guide](docs/build-system.md).
@@ -133,7 +135,7 @@ npm run test:all      # Run all tests (unit + e2e)
 npm run lint:check    # Run linting with zero warnings
 ```
 
-**Current Status:** 111 unit tests, 97% coverage for DOM utilities (dom-utils), 94% coverage for API handler (api-handler)
+**Current Status:** 129 unit tests, ~92% coverage for DOM utilities (dom-utils), ~92% coverage for API handler (api-handler), 100% for selectors and keywords
 
 ### Project Structure
 ```
@@ -161,7 +163,7 @@ cookie-decliner/
 │   ├── refactoring-summary.md # Change history
 │   └── JEST_BEST_PRACTICES.md # Jest implementation details
 ├── icons/                 # Extension icons (SVG format)
-├── manifest.json          # Extension configuration (Manifest V2)
+├── manifest.json          # Extension configuration (Manifest V3)
 ├── popup.html            # Extension popup interface
 ├── package.json          # Dependencies and scripts
 ├── jest.config.js        # Jest configuration
@@ -176,7 +178,7 @@ The extension uses multiple detection strategies to identify and decline cookie 
 
 1. **API Integration** - Leverages standardized APIs (TCF v2.0, SourcePoint)
 2. **DOM Analysis** - Scans for framework-specific selectors and patterns
-3. **Text Recognition** - Identifies decline buttons in Norwegian language
+3. **Text Recognition** - Identifies decline buttons in Norwegian and English
 4. **Context Validation** - Ensures only cookie-related buttons are clicked
 5. **Cross-Frame Communication** - Handles iframe-based consent systems
 
@@ -185,17 +187,21 @@ The extension uses multiple detection strategies to identify and decline cookie 
 - **TCF API v2.0** - Standard Transparency & Consent Framework
 - **Cookiebot** - Direct API and selector support
 - **OneTrust** - Framework-specific button detection
-- **Usercentrics** - Comprehensive selector coverage
-- **Didomi CMP** - Two-step expand-and-decline flow for sites like cdon.com
+- **Usercentrics** - Comprehensive selector coverage (incl. Apollo shadow DOM)
+- **Complianz** - Direct selector support
+- **Didomi CMP** - Single-step API + two-step expand-and-decline flow (cdon.com, norskkalender.no)
+- **Fides CMP (Ethyca)** - Shadow-DOM reject button (NYT, Condé Nast)
+- **Cookie Information** - Direct selector support
+- **Checkbox-based consent** - Uncheck optional cookies + save (MaxGaming pattern)
 - **Custom Implementations** - Generic pattern matching
 
 ## 🌐 Browser Compatibility
 
 | Browser | Version | Manifest | Status |
 |---------|---------|----------|--------|
-| Firefox | 88+ | V2 | ✅ Fully Supported |
-| Chrome | 88+ | V2 | ✅ Fully Supported |
-| Edge | 88+ | V2 | ✅ Should Work* |
+| Firefox | 109+ | V3 | ✅ Fully Supported |
+| Chrome | 88+ | V3 | ✅ Fully Supported |
+| Edge | 88+ | V3 | ✅ Should Work* |
 | Safari | - | - | ❌ Not Supported |
 
 *Edge compatibility untested but should work with Chrome-compatible extensions.
@@ -240,7 +246,7 @@ Enable browser developer tools and check console for detailed logs:
 
 Contributions are welcome! Areas for improvement:
 - **New framework support** - Add selectors for additional consent systems
-- **Enhanced Norwegian support** - Improve detection for Norwegian cookie consent patterns
+- **Enhanced language support** - Improve detection for Norwegian and English cookie consent patterns (German and French planned)
 - **Performance optimization** - Reduce resource usage
 - **Testing coverage** - Automated testing for various sites
 

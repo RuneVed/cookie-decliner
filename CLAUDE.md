@@ -63,7 +63,7 @@ SourcePoint, TCF v2.0, Cookiebot, OneTrust, Usercentrics (incl. Apollo shadow DO
 
 ## Testing
 
-- 126 unit tests in `tests/unit/` (Jest, jsdom); coverage threshold 80% on all metrics — enforced.
+- 129 unit tests in `tests/unit/` (Jest, jsdom); coverage threshold 80% on all metrics — enforced.
 - `content-script.ts` is excluded from meaningful unit testing because it self-instantiates on import.
 - E2E in `tests/e2e/`: `cookie-decliner.spec.ts` and `real-sites.spec.ts`. Run via `npm run test:e2e`, not `npm test`.
 - Browser API mocks in `tests/setup.ts`.
