@@ -77,7 +77,15 @@ export class DOMUtils {
     if (testId === 'uc-deny-all-button' || testId === 'uc-accept-all-button') {
       return testId === 'uc-deny-all-button'; // Only return true for deny button
     }
-    
+
+    // Explicit check for Fides reject button (Ethyca CMP — NYT, Condé Nast).
+    // Shadow-root children have no parentElement, so parent-context fallback
+    // cannot reach the #fides-overlay host; explicit ID avoids depending on
+    // the 'fides' keyword being present in COOKIE_KEYWORDS.
+    if (id === 'fides-reject-all-button') {
+      return true;
+    }
+
     // Check for cookie-related keywords
     const cookieKeywords = getAllCookieKeywords();
     if (cookieKeywords.some(keyword => allText.includes(keyword))) {
@@ -189,13 +197,18 @@ export class DOMUtils {
         }
         
         // Include if it's for analytics, marketing, or preferences
-        const isOptionalCategory = label.includes('analyse') || 
+        const isOptionalCategory = label.includes('analyse') ||
                                   label.includes('statistikk') ||
                                   label.includes('markedsføring') ||
                                   label.includes('marketing') ||
                                   label.includes('advertising') ||
                                   label.includes('preferanser') ||
-                                  label.includes('preferences');
+                                  label.includes('preferences') ||
+                                  label.includes('analytics') ||
+                                  label.includes('statistics') ||
+                                  label.includes('functional') ||
+                                  label.includes('targeting') ||
+                                  label.includes('performance');
         
         return isOptionalCategory;
       });
@@ -223,8 +236,11 @@ export class DOMUtils {
           'button:contains("Lagre")',
           'div[id*="cookie_consent_manager_confirm"]',
           'button:contains("Save & close")',
+          'button:contains("Save and close")',
+          'button:contains("Save preferences")',
           'button:contains("Save settings")',
           'button:contains("Bekreft valg")',
+          'button:contains("Confirm my choices")',
           'button:contains("Confirm choices")'
         ];
         

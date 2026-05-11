@@ -1,13 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Cookie Decliner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatically decline cookie consent popups",
   "author": "RuneVed",
   "minimum_chrome_version": "88",
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "109.0"
+      "id": "cookie-decliner@runeved.github.io",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "permissions": [],

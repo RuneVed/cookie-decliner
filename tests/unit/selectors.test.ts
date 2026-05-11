@@ -2,11 +2,10 @@ import { LANGUAGE_CONFIGS, FRAMEWORK_SELECTORS, getAllDeclineSelectors } from '.
 
 describe('Selectors Configuration', () => {
   describe('Language Configurations', () => {
-    it('has selectors for Norwegian only', () => {
-      expect(LANGUAGE_CONFIGS).toHaveLength(1); // Norwegian only
-      
+    it('has selectors for Norwegian and English', () => {
+      expect(LANGUAGE_CONFIGS).toHaveLength(2);
       const languages = LANGUAGE_CONFIGS.map(config => config.code);
-      expect(languages).toEqual(['no']);
+      expect(languages).toEqual(['no', 'en']);
     });
 
     it('includes Norwegian selectors with correct content', () => {
@@ -27,16 +26,20 @@ describe('Selectors Configuration', () => {
     });
 
     it('includes English selectors with correct content', () => {
-      // This test is no longer relevant as we only support Norwegian
-      const norwegian = LANGUAGE_CONFIGS.find(config => config.code === 'no');
-      expect(norwegian).toBeDefined();
-      expect(norwegian!.selectors.length).toBeGreaterThan(0);
+      const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
+      expect(english).toBeDefined();
+      expect(english!.selectors.length).toBeGreaterThan(0);
+
+      const englishSelectors = english!.selectors.map(s => s.selector).join(' ');
+      expect(englishSelectors).toContain('Reject all');
+      expect(englishSelectors).toContain('Only necessary');
+      expect(englishSelectors).toContain('Manage preferences');
     });
 
-    it('only supports Norwegian language', () => {
+    it('supports Norwegian and English, not yet German or French', () => {
       const supportedLanguages = LANGUAGE_CONFIGS.map(config => config.code);
-      expect(supportedLanguages).toEqual(['no']);
-      expect(supportedLanguages).not.toContain('en');
+      expect(supportedLanguages).toContain('no');
+      expect(supportedLanguages).toContain('en');
       expect(supportedLanguages).not.toContain('de');
       expect(supportedLanguages).not.toContain('fr');
     });
@@ -178,6 +181,46 @@ describe('Selectors Configuration', () => {
         s.selector === 'button:contains("Avvis alle")');
       
       expect(ariaIndex).toBeLessThan(textIndex);
+    });
+  });
+
+  describe('English Cookie Patterns', () => {
+    it('should include aria-label selector before text :contains selector', () => {
+      const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
+      const selectors = english!.selectors;
+
+      const ariaExactIndex = selectors.findIndex(s =>
+        s.selector === 'button[aria-label="Reject all"]');
+      const textContainsIndex = selectors.findIndex(s =>
+        s.selector === 'button:contains("Reject all")');
+
+      expect(ariaExactIndex).toBeGreaterThan(-1);
+      expect(textContainsIndex).toBeGreaterThan(-1);
+      expect(ariaExactIndex).toBeLessThan(textContainsIndex);
+    });
+
+    it('should not include bare "Reject" or "Decline" selectors (false-positive risk)', () => {
+      const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
+      const selectors = english!.selectors.map(s => s.selector);
+
+      expect(selectors).not.toContain('button:contains("Reject")');
+      expect(selectors).not.toContain('button:contains("Decline")');
+      expect(selectors).toContain('button:contains("Reject all")');
+      expect(selectors).toContain('button:contains("Decline all")');
+    });
+
+    it('should include direct decline before two-step entry', () => {
+      const english = LANGUAGE_CONFIGS.find(config => config.code === 'en');
+      const selectors = english!.selectors;
+
+      const directDeclineIndex = selectors.findIndex(s =>
+        s.selector === 'button:contains("Only necessary")');
+      const twoStepIndex = selectors.findIndex(s =>
+        s.selector === 'button:contains("Manage preferences")');
+
+      expect(directDeclineIndex).toBeGreaterThan(-1);
+      expect(twoStepIndex).toBeGreaterThan(-1);
+      expect(directDeclineIndex).toBeLessThan(twoStepIndex);
     });
   });
 

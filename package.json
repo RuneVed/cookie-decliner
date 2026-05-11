@@ -1,6 +1,6 @@
 {
   "name": "cookie-decliner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Manifest V3 browser extension that automatically declines cookie consent popups across major consent management frameworks (SourcePoint, TCF v2.0, Cookiebot, OneTrust, Usercentrics, Complianz, Didomi).",
   "main": "index.js",
   "homepage": "https://github.com/RuneVed/cookie-decliner#readme",

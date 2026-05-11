@@ -54,6 +54,59 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
       { selector: 'div[id*="cookie_consent_manager_confirm"]', description: 'Norwegian: Cookie manager confirm button' },
       { selector: 'button:contains("Lagre innstillinger")', description: 'Norwegian: Save settings' }
     ]
+  },
+  {
+    code: 'en',
+    name: 'English',
+    selectors: [
+      // Direct decline (preferred — single click)
+      { selector: 'button:contains("Only necessary cookies")', description: 'English: Only necessary cookies' },
+      { selector: 'button:contains("Only necessary")', description: 'English: Only necessary' },
+      { selector: 'button:contains("Only essential")', description: 'English: Only essential' },
+      { selector: 'button:contains("Necessary only")', description: 'English: Necessary only' },
+      { selector: 'button:contains("Essential only")', description: 'English: Essential only' },
+      { selector: 'button:contains("Use necessary cookies only")', description: 'English: Use necessary cookies only' },
+
+      // Two-step entry (open preferences) — clicking these reveals a modal with the real reject button (e.g. NYT/Fides).
+      // Must use isExpandButton: true so the MutationObserver stays alive to catch the modal's final reject.
+      { selector: 'button:contains("More options")', description: 'English: More options (step 1)', isExpandButton: true },
+      { selector: 'button:contains("More settings")', description: 'English: More settings (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Manage settings")', description: 'English: Manage settings (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Manage preferences")', description: 'English: Manage preferences (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Cookie settings")', description: 'English: Cookie settings (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Cookie preferences")', description: 'English: Cookie preferences (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Customize")', description: 'English: Customize (step 1)', isExpandButton: true },
+      { selector: 'button:contains("Customise")', description: 'English: Customise en-GB (step 1)', isExpandButton: true },
+
+      // Final reject — aria-label first (most reliable)
+      { selector: 'button[aria-label="Reject all"]', description: 'English: Reject all (aria-label)' },
+      { selector: 'button[aria-label="Decline all"]', description: 'English: Decline all (aria-label)' },
+      { selector: 'button[aria-label="Refuse all"]', description: 'English: Refuse all (aria-label)' },
+      { selector: 'button[aria-label*="Reject all"]', description: 'English: Reject all (aria-label partial)' },
+      { selector: 'button[aria-label*="Decline all"]', description: 'English: Decline all (aria-label partial)' },
+      { selector: 'a[aria-label="Reject All" i]', description: 'English: Reject all (link, case-insensitive, SourcePoint pattern)' },
+      { selector: 'button[aria-label="Withdraw Consent" i]', description: 'English: Withdraw consent (SourcePoint privacy manager)' },
+
+      // Final reject — text
+      { selector: 'button:contains("Reject all cookies")', description: 'English: Reject all cookies' },
+      { selector: 'button:contains("Decline all cookies")', description: 'English: Decline all cookies' },
+      { selector: 'button:contains("Reject all")', description: 'English: Reject all' },
+      { selector: 'button:contains("Decline all")', description: 'English: Decline all' },
+      { selector: 'button:contains("Refuse all")', description: 'English: Refuse all' },
+      { selector: 'button:contains("Deny all")', description: 'English: Deny all' },
+      { selector: 'button:contains("Do not accept")', description: 'English: Do not accept (Quantcast pattern)' },
+      { selector: 'button:contains("Do not allow")', description: 'English: Do not allow' },
+      { selector: 'button:contains("Withdraw Consent")', description: 'English: Withdraw consent (SourcePoint text)' },
+      { selector: 'a:contains("Reject All")', description: 'English: Reject all (link text, SourcePoint pattern)' },
+
+      // Save/confirm (after checkbox flow)
+      { selector: 'button:contains("Save and close")', description: 'English: Save and close' },
+      { selector: 'button:contains("Save & close")', description: 'English: Save & close' },
+      { selector: 'button:contains("Save preferences")', description: 'English: Save preferences' },
+      { selector: 'button:contains("Save settings")', description: 'English: Save settings' },
+      { selector: 'button:contains("Confirm my choices")', description: 'English: Confirm my choices' },
+      { selector: 'button:contains("Confirm choices")', description: 'English: Confirm choices' }
+    ]
   }
 ];
 
@@ -75,6 +128,11 @@ export const FRAMEWORK_SELECTORS: CookieSelector[] = [
   { selector: '.coi-consent-banner__decline-button', description: 'Cookie Information: Decline element' },
   { selector: '#coiConsentBanner button:contains("Avvis alle")', description: 'Cookie Information: Avvis alle in banner' },
   { selector: '#coiConsentBanner [onclick*="decline"], #coiConsentBanner [onclick*="reject"]', description: 'Cookie Information: Decline/reject onclick' },
+
+  // Fides CMP (Ethyca) - used by NYT and other sites
+  { selector: '#fides-reject-all-button', description: 'Fides: Reject all (by ID)' },
+  { selector: 'button.fides-reject-all-button', description: 'Fides: Reject all (button class)' },
+  { selector: '.fides-reject-all-button', description: 'Fides: Reject all (element class)' },
 
   // Complianz cookie consent manager (cmplz)
   { selector: 'button.cmplz-deny', description: 'Complianz: Deny button' },

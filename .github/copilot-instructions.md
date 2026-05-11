@@ -1,7 +1,7 @@
 # Cookie Decliner Extension - AI Coding Agent Instructions
 
 ## 🎯 Project Overview
-Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint, Didomi), DOM analysis, checkbox-based consent handling, and text recognition across 4 languages. **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
+Browser extension that automatically declines cookie consent popups using multi-strategy detection: API integration (TCF v2.0, SourcePoint, Didomi), DOM analysis (incl. shadow DOM for Usercentrics/Apollo and Fides/Ethyca), checkbox-based consent handling, and text recognition in Norwegian and English (German and French planned). **Now using Manifest V3** for modern browser compatibility and Chrome Web Store readiness.
 
 ## 📋 Development Guidelines
 
@@ -59,8 +59,8 @@ npm run prebuild     # ESLint with --max-warnings 0 (strict)
 
 ### Testing Strategy (Jest + Playwright)
 ```bash
-npm test                # Unit tests only (111 tests)
-npm run test:coverage   # Coverage report (66.66% overall, 100% dom-utils)
+npm test                # Unit tests only (129 tests)
+npm run test:coverage   # Coverage report (~56% overall, ~92% dom-utils, ~92% api-handler, 100% selectors/keywords)
 npm run test:all        # Unit + E2E tests
 npm run test:e2e        # Playwright browser automation
 ```
@@ -94,8 +94,8 @@ static isElementVisible(element: Element): boolean {
 
 ### Selector Organization
 Selectors grouped by framework and language in `selectors.ts`:
-- **Framework-specific**: SourcePoint, Cookiebot, OneTrust, Usercentrics, Complianz
-- **Language-specific**: Norwegian, English, German, French
+- **Framework-specific**: SourcePoint, Cookiebot, OneTrust, Usercentrics, Complianz, Didomi, Fides (Ethyca), Cookie Information
+- **Language-specific**: Norwegian and English (German and French planned)
 - **Text-based**: Custom `:contains()` pseudo-selector implementation
 
 ### Logging Convention

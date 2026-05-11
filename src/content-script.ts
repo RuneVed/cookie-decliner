@@ -34,7 +34,10 @@ class CookieDecliner {
     
     // Set up shadow DOM observer for Usercentrics
     this.setupShadowDOMObserver();
-    
+
+    // Set up shadow DOM observer for Fides CMP
+    this.setupFidesShadowDOMObserver();
+
     // Set up post message listener
     this.setupPostMessageListener();
   }
@@ -79,7 +82,25 @@ class CookieDecliner {
       this.markConsentProcessed();
       return true;
     }
-    
+
+    // Check Fides CMP (Ethyca) — used by NYT, New Yorker, other Condé Nast sites.
+    // Fides renders inside a shadow root on #fides-overlay by default.
+    let fidesButton: Element | null = document.querySelector('#fides-reject-all-button');
+    if (!fidesButton) {
+      const fidesOverlay = document.querySelector('#fides-overlay');
+      if (fidesOverlay?.shadowRoot) {
+        fidesButton = fidesOverlay.shadowRoot.querySelector('#fides-reject-all-button');
+      }
+    }
+
+    if (fidesButton && DOMUtils.isElementVisible(fidesButton) && DOMUtils.isCookieRelatedButton(fidesButton)) {
+      console.log('Cookie Decliner: Clicking Fides reject all button');
+      DOMUtils.clickElement(fidesButton);
+      this.processed.add(fidesButton);
+      this.markConsentProcessed();
+      return true;
+    }
+
     for (const { selector, isExpandButton } of this.declineSelectors) {
       try {
         const elements = DOMUtils.findElementsBySelector(selector);
@@ -185,6 +206,68 @@ class CookieDecliner {
     };
     
     // Start checking for shadow DOM
+    setTimeout(checkForShadowDOM, INITIAL_SHADOW_DOM_CHECK_DELAY_MS);
+  }
+
+  /**
+   * Set up mutation observer for Fides CMP shadow DOM content in #fides-overlay.
+   * Mirrors setupShadowDOMObserver but targets Fides (Ethyca) — used by NYT and other Condé Nast sites.
+   */
+  private setupFidesShadowDOMObserver(): void {
+    const maxAttempts = MAX_SHADOW_DOM_CHECK_ATTEMPTS;
+    let attempts = 0;
+
+    const checkForShadowDOM = (): void => {
+      if (this.consentProcessed || APIHandler.isConsentProcessed()) {
+        return;
+      }
+
+      attempts++;
+      const fidesOverlay = document.querySelector('#fides-overlay');
+
+      if (fidesOverlay?.shadowRoot) {
+        const shadowObserver = new MutationObserver((_mutations) => {
+          if (this.consentProcessed || APIHandler.isConsentProcessed()) {
+            shadowObserver.disconnect();
+            return;
+          }
+
+          const shadowRoot = fidesOverlay.shadowRoot;
+          if (!shadowRoot) return;
+
+          const rejectButton = shadowRoot.querySelector('#fides-reject-all-button');
+          if (rejectButton && DOMUtils.isElementVisible(rejectButton) && DOMUtils.isCookieRelatedButton(rejectButton)) {
+            console.log('Cookie Decliner: Clicking Fides reject all button (shadow DOM observer)');
+            DOMUtils.clickElement(rejectButton);
+            this.processed.add(rejectButton);
+            this.markConsentProcessed();
+            shadowObserver.disconnect();
+          }
+        });
+
+        shadowObserver.observe(fidesOverlay.shadowRoot, {
+          childList: true,
+          subtree: true
+        });
+
+        // Also try once immediately in case the button is already there
+        const rejectButton = fidesOverlay.shadowRoot.querySelector('#fides-reject-all-button');
+        if (rejectButton && DOMUtils.isElementVisible(rejectButton) && DOMUtils.isCookieRelatedButton(rejectButton)) {
+          console.log('Cookie Decliner: Clicking Fides reject all button');
+          DOMUtils.clickElement(rejectButton);
+          this.processed.add(rejectButton);
+          this.markConsentProcessed();
+          shadowObserver.disconnect();
+        }
+
+        return;
+      }
+
+      if (attempts < maxAttempts) {
+        setTimeout(checkForShadowDOM, SHADOW_DOM_CHECK_INTERVAL_MS);
+      }
+    };
+
     setTimeout(checkForShadowDOM, INITIAL_SHADOW_DOM_CHECK_DELAY_MS);
   }
 
