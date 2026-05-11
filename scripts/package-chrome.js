@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Build a deterministic submission ZIP for addons.mozilla.org.
-// Usage: npm run package
+// Build a deterministic submission ZIP for the Chrome Web Store.
+// Usage: npm run package:chrome
 import { createWriteStream, existsSync, mkdirSync, statSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,9 +28,12 @@ const includes = [
 for (const rel of includes) {
   const full = resolve(root, rel);
   if (!existsSync(full)) {
-    console.error(`[package] Missing required file: ${rel}`);
+    console.error(`[package:chrome] Missing required file: ${rel}`);
     if (rel === 'dist/content-script.js') {
-      console.error('[package] Run `npm run build` first.');
+      console.error('[package:chrome] Run `npm run build` first.');
+    }
+    if (rel.endsWith('.png')) {
+      console.error('[package:chrome] Run `npm run icons` first.');
     }
     process.exit(1);
   }
@@ -41,19 +44,19 @@ if (!existsSync(releaseDir)) {
   mkdirSync(releaseDir, { recursive: true });
 }
 
-const outPath = resolve(releaseDir, `cookie-decliner-firefox-${version}.zip`);
+const outPath = resolve(releaseDir, `cookie-decliner-chrome-${version}.zip`);
 const output = createWriteStream(outPath);
 const archive = archiver('zip', { zlib: { level: 9 } });
 
 output.on('close', () => {
   const { size } = statSync(outPath);
-  console.log(`[package] ${outPath}`);
-  console.log(`[package] ${archive.pointer()} bytes (${(size / 1024).toFixed(1)} KiB)`);
+  console.log(`[package:chrome] ${outPath}`);
+  console.log(`[package:chrome] ${archive.pointer()} bytes (${(size / 1024).toFixed(1)} KiB)`);
 });
 
 archive.on('warning', (err) => {
   if (err.code === 'ENOENT') {
-    console.warn(`[package] warning: ${err.message}`);
+    console.warn(`[package:chrome] warning: ${err.message}`);
   } else {
     throw err;
   }
